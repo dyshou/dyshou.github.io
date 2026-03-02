@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TikTok 检测 · 悬浮提醒 + 正常跳转</title>
+    <title>点右上角三个点"..."选在浏览器中打开</title>
     <style>
         /* 基础重置，保证全屏遮罩干净 */
         * {
@@ -198,7 +198,7 @@
 
     <!-- 正常跳转前可见的简单内容（普通浏览器，极短时间内显示，避免白屏） -->
     <div class="redirect-message" id="redirectMessage">
-        <h1>🔄 正在跳转</h1>
+        <h1>🔄 正在进入</h1>
         <p>请稍候，即将访问目标页面</p>
     </div>
 
@@ -215,25 +215,24 @@
                     <circle cx="12" cy="17" r="1" fill="black"/>
                 </svg>
             </div>
-            <h2>请使用浏览器打开</h2>
+            <h2>⭐ 点击右上角「···」<br>选择「在浏览器中打开」</h2>
             <p>为了更好的体验<br>请在 Safari / Chrome 等浏览器中打开此页</p>
             
             <div class="highlight-badge">
-                <span>⚠️ 检测到</span> TikTok 内置浏览器
+                <span>⚠️ 检测到</span> TikTok无法直接打开
             </div>
 
             <!-- 大大的浏览器按钮（点击后复制链接+引导） -->
             <button class="browser-button" id="openBrowserBtn">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.876.75.75 0 10.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z"/><path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z"/></svg>
-                在浏览器中打开
+                点击复制网址
             </button>
 
             <div class="tip-text">
                 ⭐ 点击右上角「···」<br>选择「在浏览器中打开」
             </div>
             <div class="no-close">
-                此窗口为全屏提示 · 请使用浏览器访问
-            </div>
+                          </div>
         </div>
     </div>
 
