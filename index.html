@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>⭐ 点击右上角「···」=选择「在浏览器中打开」</title>
+    <title>主播专属</title>
     <style>
-        /* 基础重置，保证全屏遮罩干净 */
+        /* 基础重置 */
         * {
             margin: 0;
             padding: 0;
@@ -15,14 +15,13 @@
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             min-height: 100vh;
-            background: #f5f5f7; /* 背景仅短暂可见（跳转前或TikTok内） */
+            background: #f5f5f7;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* 如果跳转很快，这个背景一闪而过；如果TikTok内则显示悬浮层 */
         }
 
-        /* 普通浏览器跳转前可能闪现的内容（极小概率，为了优雅可以保留简单提示） */
+        /* 普通浏览器跳转前闪现的提示 */
         .redirect-message {
             text-align: center;
             padding: 2rem;
@@ -62,25 +61,23 @@
             z-index: 2147483647;
             padding: 16px;
             box-sizing: border-box;
-            /* 默认隐藏，仅当 TikTok 环境时通过 JS 显示 */
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.2s ease, visibility 0.2s ease;
         }
 
-        /* 显示状态 - 由 JS 控制添加 */
         .tiktok-overlay.active {
             visibility: visible;
             opacity: 1;
         }
 
-        /* 提醒卡片设计 */
+        /* 提醒卡片设计 - 更强调右上角引导 */
         .overlay-card {
             background: white;
             max-width: 400px;
             width: 100%;
             border-radius: 36px;
-            padding: 32px 24px;
+            padding: 36px 24px 32px;
             text-align: center;
             box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
             animation: floatUp 0.3s ease-out;
@@ -92,147 +89,204 @@
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
-        .overlay-icon svg {
-            width: 64px;
-            height: 64px;
-            stroke: none;
-            margin-bottom: 16px;
+        /* 右上角图标动画 */
+        .menu-icon-container {
+            margin-bottom: 24px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: #f2f2f5;
+            padding: 16px 28px;
+            border-radius: 60px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 60px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.3); opacity: 1; background: #000; }
+        }
+
+        .arrow-hint {
+            margin-top: 12px;
+            font-size: 1.2rem;
+            color: #666;
+            letter-spacing: 4px;
         }
 
         .overlay-card h2 {
-            font-size: 1.9rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 16px;
+            margin: 20px 0 16px;
             color: #121212;
             letter-spacing: -0.02em;
         }
 
         .overlay-card p {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             color: #2c2c2e;
-            margin-bottom: 28px;
-            line-height: 1.4;
+            margin-bottom: 24px;
+            line-height: 1.5;
             font-weight: 400;
             padding: 0 8px;
         }
 
-        .highlight-badge {
-            background: #f2f2f5;
-            border-radius: 60px;
-            padding: 14px 20px;
-            margin: 20px 0 28px;
-            font-size: 1rem;
-            color: #1c1c1e;
+        .highlight-box {
+            background: linear-gradient(135deg, #f8f8fa, #f0f0f3);
+            border-radius: 24px;
+            padding: 24px 16px;
+            margin: 24px 0 20px;
+            border: 2px solid #000;
+            box-shadow: 0 8px 0 #000;
+        }
+
+        .step-guide {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            border: 1px solid rgba(0,0,0,0.05);
-            font-weight: 500;
-        }
-
-        .highlight-badge span {
-            background: #000;
-            color: white;
-            border-radius: 40px;
-            padding: 4px 12px;
-            font-size: 0.9rem;
+            gap: 16px;
+            font-size: 1.3rem;
             font-weight: 600;
-            letter-spacing: 0.3px;
         }
 
-        .browser-button {
+        .step-guide span {
             background: #000;
             color: white;
-            border: none;
-            width: 100%;
-            padding: 18px 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 40px;
+            font-size: 1.4rem;
+        }
+
+        .browser-highlight {
+            background: #000;
+            color: white;
+            padding: 12px 20px;
             border-radius: 60px;
             font-size: 1.25rem;
             font-weight: 600;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
+            gap: 10px;
+            margin: 8px 0;
         }
 
-        .browser-button:hover {
-            background: #222;
-            transform: scale(1.02);
-        }
-
-        .browser-button svg {
-            width: 22px;
-            height: 22px;
+        .browser-highlight svg {
+            width: 24px;
+            height: 24px;
             fill: white;
         }
 
-        .tip-text {
+        .tip-strong {
+            background: #e6f0ff;
+            border-radius: 30px;
+            padding: 18px;
+            margin: 24px 0 12px;
+            border: 2px solid #007aff;
+        }
+
+        .tip-strong p {
+            color: #007aff;
+            font-weight: 600;
+            font-size: 1.15rem;
+            margin: 0;
+        }
+
+        .no-close {
             color: #8e8e93;
             font-size: 0.9rem;
-            margin-top: 8px;
+            margin-top: 20px;
             border-top: 1px solid #e9e9ed;
             padding-top: 18px;
         }
 
-        .tip-text a {
-            color: #007aff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .no-close {
-            color: #5e5e60;
-            font-size: 0.85rem;
-            margin-top: 12px;
-            opacity: 0.8;
-        }
+        /* 完全移除按钮样式，只保留引导 */
     </style>
 </head>
 <body>
 
-    <!-- 正常跳转前可见的简单内容（普通浏览器，极短时间内显示，避免白屏） -->
+    <!-- 普通浏览器跳转前可见的简单内容（极短时间） -->
     <div class="redirect-message" id="redirectMessage">
-        <h1>🔄 正在访问</h1>
+        <h1>🔄 正在跳转</h1>
         <p>请稍候，即将访问目标页面</p>
     </div>
 
-    <!-- 全屏悬浮层 TikTok 提醒 (默认隐藏) -->
+    <!-- 全屏悬浮层 TikTok 提醒 - 无复制按钮，纯右上角引导 -->
     <div id="tiktokOverlay" class="tiktok-overlay">
         <div class="overlay-card">
-            <div class="overlay-icon">
-                <!-- 简约浏览器/手机图标 -->
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M8 2V6" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M16 2V6" stroke="black" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M8 14H16" stroke="black" stroke-width="1.8" stroke-linecap="round"/>
-                    <circle cx="12" cy="17" r="1" fill="black"/>
-                </svg>
-            </div>
-            <h2>请使用浏览器打开</h2>
-            <p>为了更好的体验<br>请在 Safari / Chrome 等浏览器中打开此页</p>
             
-            <div class="highlight-badge">
-                <span>⚠️ 检测到</span> TikTok 内置浏览器
+            <!-- 醒目的三点菜单动画 -->
+            <div class="menu-icon-container">
+                <div class="menu-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="arrow-hint">
+                    👆 点击这里
+                </div>
             </div>
 
-            <!-- 大大的浏览器按钮（点击后复制链接+引导） -->
-            <button class="browser-button" id="openBrowserBtn">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.876.75.75 0 10.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z"/><path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z"/></svg>
-                点击复制连接或者⭐ 点击右上角「···」=选择「在浏览器中打开」
-            </button>
+            <h2>请在浏览器中打开</h2>
+            <p>TikTok 内置浏览器可能影响体验<br>只需两步即可正常访问</p>
 
-            <div class="tip-text">
-                ⭐ 点击右上角「···」<br>选择「在浏览器中打开」
+            <!-- 高亮引导步骤 -->
+            <div class="highlight-box">
+                <div class="step-guide">
+                    <span>1</span>
+                    <span>→</span>
+                    <span>2</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-around; margin: 20px 0 8px; gap: 10px;">
+                    <div style="flex: 1; background: #fff; padding: 14px 5px; border-radius: 30px; font-weight: 600;">
+                        ⬆️ 右上角<br>··· 菜单
+                    </div>
+                    <div style="flex: 1; background: #fff; padding: 14px 5px; border-radius: 30px; font-weight: 600; border: 2px solid #000;">
+                        🌐 选择<br>浏览器打开
+                    </div>
+                </div>
             </div>
+
+            <!-- 强调浏览器图标 -->
+            <div class="browser-highlight">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+                 Safari / Chrome / 浏览器
+            </div>
+
+            <!-- 强烈提示 -->
+            <div class="tip-strong">
+                <p>⚠️ 必须点击右上角「···」</p>
+                <p style="font-size: 1.3rem; margin-top: 6px;">选择「在浏览器中打开」</p>
+            </div>
+
             <div class="no-close">
-                此窗口为全屏提示 · 请使用浏览器访问
+                此窗口为全屏提示 · 完成上述操作即可关闭
             </div>
         </div>
     </div>
@@ -248,7 +302,6 @@
             function isTikTokInternalBrowser() {
                 const ua = navigator.userAgent || navigator.vendor || window.opera || '';
 
-                // TikTok 相关标识
                 const tikTokPatterns = [
                     /TikTok/i,
                     /musically/i,
@@ -263,7 +316,6 @@
                     }
                 }
 
-                // 检查 userAgentData 品牌 (现代浏览器)
                 if (navigator.userAgentData && navigator.userAgentData.brands) {
                     const brands = navigator.userAgentData.brands;
                     for (let brand of brands) {
@@ -276,71 +328,39 @@
                 return false;
             }
 
-            // 获取元素
             const overlay = document.getElementById('tiktokOverlay');
             const redirectMsg = document.getElementById('redirectMessage');
 
-            // ---------- 逻辑分支 ----------
             if (isTikTokInternalBrowser()) {
-                // 1. TikTok 内置浏览器 → 显示悬浮层，禁止跳转，锁定背景
+                // TikTok 环境：显示悬浮层，锁定背景，无跳转，无复制按钮
                 if (overlay) {
                     overlay.classList.add('active');
                 }
 
-                // 隐藏跳转提示 (其实普通浏览器的提示在TikTok里也不应该出现，但为了干净)
                 if (redirectMsg) {
                     redirectMsg.style.opacity = '0';
                 }
 
-                // 锁定背景滚动
+                // 锁定滚动
                 document.body.style.overflow = 'hidden';
                 document.documentElement.style.overflow = 'hidden';
 
-                // 绑定按钮：复制链接 + 引导
-                const btn = document.getElementById('openBrowserBtn');
-                if (btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // 复制当前页面URL（实际上是这个检测页的链接，但目标链接其实不是当前页）
-                        // 为了更准确，我们直接复制目标链接 TARGET_URL 给用户，方便粘贴到浏览器
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            navigator.clipboard.writeText(TARGET_URL).then(() => {
-                                const originalText = btn.innerHTML;
-                                btn.innerHTML = '✅ 链接已复制，请粘贴到浏览器';
-                                btn.style.background = '#28a745';
-                                setTimeout(() => {
-                                    btn.innerHTML = originalText;
-                                    btn.style.background = '#000';
-                                }, 2500);
-                            }).catch(() => {
-                                alert('请手动复制链接: ' + TARGET_URL);
-                            });
-                        } else {
-                            alert('请手动复制链接并在浏览器中打开:\n' + TARGET_URL);
-                        }
-                    });
-                }
+                // 完全移除了复制链接的按钮和功能，只剩下视觉引导
+                // 不需要任何点击处理，纯提示
             } else {
-                // 2. 普通浏览器 → 立即跳转到目标链接
-                // 为了让跳转体验平滑，加一个微小延迟避免浏览器卡死或拦截（实际上直接跳转没问题）
-                // 使用 replace 而不是 assign 避免产生历史记录回退到此页
+                // 普通浏览器：跳转到目标链接
                 setTimeout(function() {
                     window.location.replace(TARGET_URL);
-                }, 50); // 极短延迟，保证页面提示闪现可见（可选，也可直接跳）
-                // 如果不希望看到任何中间内容，可以直接 window.location.replace(TARGET_URL);
-                // 但为了代码清晰，保留极小延迟，同时更新提示文字为“正在跳转”
+                }, 50);
+
                 if (redirectMsg) {
                     redirectMsg.innerHTML = '<h1>🚀 正在跳转</h1><p>即将访问目标页面</p>';
                 }
-                // 确保 body 不锁定滚动
+
                 document.body.style.overflow = '';
                 document.documentElement.style.overflow = '';
             }
         })();
     </script>
-
-    <!-- 兼容备注：现代浏览器均支持 classList 和基本的 DOM 操作，无需 polyfill -->
 </body>
 </html>
