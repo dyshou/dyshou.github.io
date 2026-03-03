@@ -109,23 +109,37 @@
             box-shadow: 0 15px 25px -8px black, 0 0 30px #ff3b6f;
             cursor: pointer;
             transition: transform 0.2s ease;
+            /* 添加加载动画背景 */
+            background-image: linear-gradient(45deg, #2a1a2a 25%, #3a2a3a 50%, #2a1a2a 75%);
+            background-size: 200% 200%;
+            animation: loadingShimmer 1.5s infinite;
+        }
+
+        @keyframes loadingShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .girl-live-section.loaded {
+            background-image: none;
+            animation: none;
         }
 
         .girl-live-section:active {
             transform: scale(0.99);
         }
 
-        /* 媒体容器 - 高度增大，更像直播间比例 */
+        /* 媒体容器 */
         .media-container {
             width: 100%;
             aspect-ratio: 1 / 1.3;
             position: relative;
-            background-color: #2a1a2a;
+            background-color: transparent;
             overflow: hidden;
             pointer-events: none;
         }
         
-        /* 图片样式 - 现在只有静态图片 */
+        /* 图片样式 - 优化加载 */
         .media-container img {
             width: 100%;
             height: 100%;
@@ -135,6 +149,13 @@
             top: 0;
             left: 0;
             pointer-events: none;
+            /* 添加淡入效果 */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .media-container img.loaded {
+            opacity: 1;
         }
 
         /* 所有覆盖在直播区域上的标签都不拦截点击 */
@@ -246,25 +267,32 @@
             box-shadow: 0 0 15px #00ff88;
         }
 
-        /* 激活提示区域 - 免费激活 */
-        .activate-notice {
-            background: rgba(0, 200, 255, 0.15);
-            border: 1px solid #00e5ff;
+        /* 邀请提示区域 - 修改为“找主播邀请你进专属房间” */
+        .invite-notice {
+            background: rgba(255, 105, 180, 0.2);
+            border: 1px solid #ff69b4;
             border-radius: 30px;
-            padding: 0.6rem 1rem;
+            padding: 0.7rem 1rem;
             margin: 0.5rem 0 0.8rem;
             text-align: center;
-            font-size: 0.9rem;
-            color: #7fffd4;
+            font-size: 1rem;
+            color: #ffb6c1;
             backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
         }
         
-        .activate-notice span {
-            font-size: 1.2rem;
+        .invite-notice span {
+            font-size: 1.3rem;
+        }
+
+        .invite-notice strong {
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 8px #ff69b4;
         }
 
         /* 下载按钮 */
@@ -342,7 +370,7 @@
             opacity: 0.9;
         }
 
-        /* ========== 私信主播按钮 - 右下角浮动 ========== */
+        /* ========== 私信主播按钮 ========== */
         .private-message-btn {
             position: fixed;
             bottom: 30px;
@@ -381,7 +409,7 @@
             100% { transform: translateY(0); }
         }
 
-        /* ========== 虚浮客服层 - 放大高度，宽度自适应 ========== */
+        /* ========== 虚浮客服层 ========== */
         .floating-chat {
             position: fixed;
             bottom: 100px;
@@ -410,7 +438,6 @@
             pointer-events: none;
         }
 
-        /* 聊天头部 - 包含关闭按钮 */
         .chat-header {
             display: flex;
             justify-content: space-between;
@@ -454,7 +481,6 @@
             transform: scale(0.9);
         }
 
-        /* 聊天内容区域 - 使用iframe嵌入客服链接，填充剩余空间 */
         .chat-content {
             flex: 1;
             width: 100%;
@@ -470,7 +496,6 @@
             background: white;
         }
 
-        /* 移动端适配优化 */
         @media (max-width: 480px) {
             .private-message-btn {
                 bottom: 20px;
@@ -507,18 +532,22 @@
             🔥 今夜孤独指数 98% 🔥
         </div>
 
-        <!-- 媒体区域：仅保留静态图片，视频已移除 -->
+        <!-- 媒体区域：使用同目录下的 sp.png -->
         <div class="girl-live-section" id="liveArea">
             <div class="media-container" id="mediaContainer">
-                <!-- 静态图片 -->
+                <!-- 静态图片 - 添加加载优化属性 -->
                 <img 
                     src="sp.png" 
                     alt="美女主播"
+                    id="mainImage"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
                 />
                 
                 <!-- 直播角标 左上 -->
                 <div class="live-flag">
-                    <span></span> LIVE
+                    <span>🔴</span> LIVE
                 </div>
                 
                 <!-- 右上角 正在直播中 + 跳动效果 -->
@@ -534,19 +563,17 @@
             </div>
         </div>
 
-        <!-- 视频相关脚本已完全移除 -->
-
-        <!-- 激活提醒 - 免费激活 -->
-        <div class="activate-notice">
-            <span>✨</span> 下载安装后 · 联系主播免费激活账号 <span>✨</span>
+        <!-- 邀请提醒 - 修改为“找主播邀请你进专属房间” -->
+        <div class="invite-notice">
+            <span>🔑</span> 下载后 · 注册ID <strong>右下角私主播</strong> <span>🔑</span>
         </div>
-        <div class="activate-notice" style="margin-top: -0.3rem; background: rgba(0, 200, 255, 0.1);">
-            <span>🔓</span> 激活免费 · 激活后即可私密互动 <span>🔓</span>
+        <div class="invite-notice" style="margin-top: -0.3rem; background: rgba(255, 105, 180, 0.1);">
+            <span>💝</span> 免费邀请 · 进房即可私密互动 <span>💝</span>
         </div>
 
         <!-- 下载按钮 -->
         <button class="download-btn-single" id="downloadBtn">
-            <span>⬇️</span> 注册账号并激活 <span>🔥</span>
+            <span>⬇️</span> 没有ID · 免费注册 <span>🔥</span>
         </button>
         <div class="auto-detect-hint">
             ⚡ 自动识别您的手机类型，跳转对应商店 ⚡
@@ -564,21 +591,20 @@
         </div>
     </div>
 
-    <!-- ========== 私信主播按钮 (右下角) ========== -->
+    <!-- 私信主播按钮 -->
     <div class="private-message-btn" id="privateMessageBtn">
         <span>💬</span> 私信主播
     </div>
 
-    <!-- ========== 虚浮客服层 (默认隐藏) ========== -->
+    <!-- 虚浮客服层 -->
     <div class="floating-chat hidden" id="floatingChat">
         <div class="chat-header">
             <h3>
-                <span>💬</span> 与主播小妖静静聊天
+                <span>💬</span>发你的ID主播免费邀请进入
             </h3>
             <div class="close-chat" id="closeChatBtn">✕</div>
         </div>
         <div class="chat-content">
-            <!-- 使用您提供的客服链接嵌入 iframe -->
             <iframe src="https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53" title="客服聊天"></iframe>
         </div>
     </div>
@@ -587,18 +613,38 @@
         (function() {
             const downloadBtn = document.getElementById('downloadBtn');
             const liveArea = document.getElementById('liveArea');
+            const mainImage = document.getElementById('mainImage');
             
             // 私信相关元素
             const privateMsgBtn = document.getElementById('privateMessageBtn');
             const floatingChat = document.getElementById('floatingChat');
             const closeChatBtn = document.getElementById('closeChatBtn');
 
-            // 定义下载链接 - 请替换为您自己的真实链接
+            // 图片加载完成后的处理
+            if (mainImage) {
+                // 如果图片已经加载完成
+                if (mainImage.complete) {
+                    mainImage.classList.add('loaded');
+                    liveArea.classList.add('loaded');
+                } else {
+                    // 等待图片加载完成
+                    mainImage.addEventListener('load', function() {
+                        mainImage.classList.add('loaded');
+                        liveArea.classList.add('loaded');
+                    });
+                    
+                    // 加载失败也移除动画（避免一直闪烁）
+                    mainImage.addEventListener('error', function() {
+                        liveArea.classList.add('loaded');
+                    });
+                }
+            }
+
+            // 定义下载链接
             const APP_STORE_URL = 'https://aq.lumawang.com/yokaios';
             const PLAY_STORE_URL = 'https://play.google.com/store/search?q=yoka%20live';
             const FALLBACK_URL = 'https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53';
 
-            // 检测用户设备类型
             function getMobilePlatform() {
                 const userAgent = navigator.userAgent || navigator.vendor || window.opera;
                 
@@ -613,7 +659,6 @@
                 return 'unknown';
             }
 
-            // 处理下载跳转
             function handleDownload() {
                 const platform = getMobilePlatform();
                 
@@ -626,13 +671,12 @@
                 }
             }
 
-            // 触发下载的函数
+            // 修改弹窗文案
             function triggerDownload() {
-                alert('📢 重要提示：\n\n请先下载安装并注册您的账号，然后回到本页面，点击右下角【私信主播】联系主播进行免费账号激活。\n\n激活后即可畅享私密1V1互动！');
+                alert('📢 重要提示：\n\n请先下载安装并注册您的账号，然后回到本页面，点击右下角【私信主播】联系主播邀请您进入专属房间。\n\n进入房间后即可畅享私密1V1互动！');
                 handleDownload();
             }
 
-            // 为下载按钮绑定点击事件
             if (downloadBtn) {
                 downloadBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -640,7 +684,6 @@
                 });
             }
 
-            // 为直播区域绑定点击事件
             if (liveArea) {
                 liveArea.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -648,9 +691,7 @@
                 });
             }
 
-            // ========== 私信主播相关功能 ==========
-            
-            // 点击私信主播按钮，显示浮层
+            // 私信主播相关功能
             if (privateMsgBtn) {
                 privateMsgBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -658,7 +699,6 @@
                 });
             }
 
-            // 点击关闭按钮，隐藏浮层
             if (closeChatBtn) {
                 closeChatBtn.addEventListener('click', function(e) {
                     e.preventDefault();
