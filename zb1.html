@@ -3,29 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>主播专场直播</title>
+    <title> · 主播专场直播 · </title>
     <style>
-        /* 全局样式 - 完全保持原样 */
+        /* ===== 全局样式 (完全保留原样) ===== */
         body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
             height: 100%;
         }
-
-        /* 悬浮窗口样式 - 原样保留 */
         .floating-window {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 0;
-            padding-top: 56.25%; /* 16:9 比例 */
+            padding-top: 56.25%;
             background-color: black;
             z-index: 1000;
         }
-
-        /* 视频播放器样式 - 原样保留 */
         .floating-window video {
             position: absolute;
             top: 0;
@@ -34,8 +30,6 @@
             height: 100%;
             object-fit: cover;
         }
-
-        /* 主内容 iframe 样式 - 原样保留 */
         iframe {
             width: 100%;
             height: 100%;
@@ -43,7 +37,7 @@
             margin-top: -10px;
         }
 
-        /* 圆角长方形按钮样式 */
+        /* ===== 右侧悬浮按钮 (完全保留) ===== */
         .action-buttons {
             position: fixed;
             top: 50%;
@@ -54,8 +48,6 @@
             flex-direction: column;
             gap: 15px;
         }
-
-        /* 基础按钮样式 - 圆角长方形 */
         .action-btn {
             width: 100px;
             height: 50px;
@@ -76,144 +68,90 @@
             padding: 0 15px;
             letter-spacing: 0.5px;
         }
+        #soundToggleBtn { background: linear-gradient(145deg, #3a7bd5, #0052d4); border-color: rgba(255, 255, 255, 0.9); }
+        #soundToggleBtn.sound-on { background: linear-gradient(145deg, #f7971e, #ffd200); border-color: rgba(255, 255, 255, 0.95); }
+        #messageBtn { background: linear-gradient(145deg, #ff416c, #ff4b2b); border-color: rgba(255, 255, 255, 0.9); width: 100px; }
+        .action-btn:hover { transform: scale(1.05); border-color: #ffffff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); filter: brightness(1.1); }
+        .action-btn:active { transform: scale(0.98); }
+        .btn-content { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-icon { font-size: 18px; }
 
-        /* 声音按钮 - 使用醒目的蓝色 */
-        #soundToggleBtn {
-            background: linear-gradient(145deg, #3a7bd5, #0052d4);
-            border-color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* 声音开启状态 - 变为橙色表示关闭功能 */
-        #soundToggleBtn.sound-on {
-            background: linear-gradient(145deg, #f7971e, #ffd200);
-            border-color: rgba(255, 255, 255, 0.95);
-        }
-
-        /* 私信按钮 - 使用性感的红色系 */
-        #messageBtn {
-            background: linear-gradient(145deg, #ff416c, #ff4b2b);
-            border-color: rgba(255, 255, 255, 0.9);
-            width: 100px;
-        }
-
-        /* 按钮悬停效果 */
-        .action-btn:hover {
-            transform: scale(1.05);
-            border-color: #ffffff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-            filter: brightness(1.1);
-        }
-
-        /* 按钮点击效果 */
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* 按钮内的图标和文字布局 */
-        .btn-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-icon {
-            font-size: 18px;
-        }
-
-        /* ===== 第一层弹窗 - 私密互动空间 ===== */
+        /* ===== 第一层弹窗 —— 底部显示，尺寸与聊天区域近似 ===== */
         .message-popup {
             position: fixed;
-            top: 0;
             left: 0;
+            bottom: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 3000;
+            height: auto;
+            background: transparent;
             display: none;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
+            z-index: 3000;
+            pointer-events: none;
         }
-
         .message-popup.show {
             display: flex;
-            animation: fadeIn 0.3s ease;
+            animation: slideUp 0.25s ease-out;
         }
 
         .popup-content {
-            width: 90%;
-            max-width: 380px;
+            width: 96%;
+            max-width: 400px;
             background: linear-gradient(145deg, #1e1e2f, #2d2d44);
-            border-radius: 24px;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: none;
+            pointer-events: auto;
+            margin-bottom: 0;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .popup-header {
             background: rgba(255, 255, 255, 0.05);
-            padding: 12px 18px;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .popup-header h3 {
             margin: 0;
             font-size: 16px;
             color: #fff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             background: linear-gradient(145deg, #ff416c, #ff4b2b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .close-popup {
             background: rgba(255, 255, 255, 0.1);
             border: none;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             color: #fff;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        .close-popup:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(90deg); }
 
-        .close-popup:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(90deg);
-        }
+        .popup-body { padding: 16px 18px 20px; }
 
-        .popup-body {
-            padding: 16px 18px;
-            text-align: center;
-        }
-
-        .highlight {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 0 0 12px;
-            background: linear-gradient(145deg, #ff416c, #ff4b2b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* 指定目标文字为白色 (原为渐变色，现强制白色) */
+        /* 目标文字保持白色 */
         .popup-body .highlight:first-of-type {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
-            background: none !important;          /* 移除渐变背景 */
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* 保留一点阴影提升可读性，与原设计不冲突 */
+            background: none !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
+        .highlight { font-size: 16px; font-weight: bold; margin: 0 0 12px; }
 
         .download-section {
             background: rgba(0, 0, 0, 0.3);
@@ -222,19 +160,8 @@
             margin: 0 0 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .download-title {
-            color: #fff;
-            font-size: 13px;
-            margin-bottom: 8px;
-            font-weight: normal;
-        }
-
-        .download-title span {
-            color: #ff416c;
-            font-weight: bold;
-        }
-
+        .download-title { color: #fff; font-size: 13px; margin-bottom: 8px; }
+        .download-title span { color: #ff416c; font-weight: bold; }
         .download-btn {
             background: linear-gradient(145deg, #00c6fb, #005bea);
             color: white;
@@ -244,7 +171,7 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: 0.3s;
             box-shadow: 0 8px 15px rgba(0, 198, 251, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
@@ -254,47 +181,18 @@
             gap: 6px;
             margin-bottom: 6px;
         }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px rgba(0, 198, 251, 0.4);
-        }
-
-        .download-btn:active {
-            transform: translateY(0);
-        }
-
-        .download-icon {
-            font-size: 18px;
-        }
-
-        .device-info {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 10px;
-            margin-top: 4px;
-        }
+        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(0, 198, 251, 0.4); }
+        .device-info { color: rgba(255, 255, 255, 0.4); font-size: 10px; margin-top: 4px; }
 
         .register-note {
-            background: rgba(255, 65, 108, 0.1);
-            border-left: 2px solid #ff416c;
+            background: rgba(255,215,0,0.1);
+            border-left: 2px solid #ffd700;
             padding: 8px 10px;
             border-radius: 8px;
             margin: 10px 0;
             text-align: left;
         }
-
-        .register-note p {
-            margin: 2px 0;
-            font-size: 12px;
-            line-height: 1.4;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .register-note .highlight-text {
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 13px;
-        }
+        .register-note p { margin: 2px 0; font-size: 12px; color: rgba(255, 255, 255, 0.9); }
 
         .screenshot-tip {
             display: flex;
@@ -305,23 +203,8 @@
             border-radius: 8px;
             margin: 10px 0;
         }
-
-        .screenshot-tip span {
-            font-size: 18px;
-        }
-
-        .screenshot-tip p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            line-height: 1.4;
-            margin: 0;
-            text-align: left;
-        }
-
-        .screenshot-tip strong {
-            font-size: 12px;
-            color: #ffd700;
-        }
+        .screenshot-tip p { color: rgba(255, 255, 255, 0.9); font-size: 11px; line-height: 1.4; margin: 0; text-align: left; }
+        .screenshot-tip strong { font-size: 12px; color: #ffd700; }
 
         .private-chat-btn {
             background: linear-gradient(145deg, #ff416c, #ff4b2b);
@@ -332,7 +215,7 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: 0.3s;
             box-shadow: 0 8px 15px rgba(255, 65, 108, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
             width: 100%;
@@ -342,190 +225,56 @@
             gap: 8px;
             margin: 12px 0 6px;
         }
+        .private-chat-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(255, 65, 108, 0.4); }
+        .chat-icon { font-size: 16px; }
+        .step-text { color: rgba(255, 255, 255, 0.5); font-size: 10px; margin-top: 8px; }
+        .bonus-text { color: #ffd700; font-size: 11px; font-weight: bold; }
 
-        .private-chat-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 20px rgba(255, 65, 108, 0.4);
-        }
+        /* ===== 第二层弹窗 (客服) 已被移除，相关样式保留但无对应元素 ===== */
+        /* 为免影响，将旧样式注释掉，但保留无妨，因为HTML中没有对应ID的容器了 
+        .customer-popup { ... } 
+        我们完全删除了HTML中的第二层弹窗结构，所以这些样式不会生效。
+        */
 
-        .private-chat-btn:active {
-            transform: translateY(0);
-        }
-
-        .chat-icon {
-            font-size: 16px;
-        }
-
-        .step-text {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 10px;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-
-        .step-text strong {
-            color: #ffd700;
-        }
-
-        .bonus-text {
-            color: #ffd700;
-            font-size: 11px;
-            margin-top: 6px;
-            font-weight: bold;
-        }
-
-        /* ===== 第二层弹窗 - 客服页面 ===== */
-        .customer-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 4000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .customer-popup.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .customer-content {
-            width: 95%;
-            height: 90%;
-            max-width: 500px;
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .customer-header {
-            background: linear-gradient(145deg, #ff416c, #ff4b2b);
-            padding: 12px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
-
-        .customer-header h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .close-customer {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .close-customer:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .customer-iframe {
-            width: 100%;
-            flex: 1;
-            border: none;
-            background: white;
-        }
-
-        /* 动画效果 */
+        /* 动画 */
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity:0; transform:scale(0.95); }
+            to { opacity:1; transform:scale(1); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity:0.6; }
+            to { transform: translateY(0); opacity:1; }
         }
 
-        /* 响应式调整 */
         @media (max-width: 768px) {
-            .action-buttons {
-                right: 15px;
-                gap: 12px;
-            }
-            
-            .action-btn {
-                width: 85px;
-                height: 45px;
-                font-size: 12px;
-                border-radius: 22px;
-            }
-            
-            .btn-icon {
-                font-size: 16px;
-            }
-            
-            .popup-content {
-                width: 92%;
-                max-width: 340px;
-            }
-            
-            .customer-content {
-                width: 95%;
-                height: 85%;
-            }
+            .action-buttons { right:15px; gap:12px; }
+            .action-btn { width:85px; height:45px; font-size:12px; border-radius:22px; }
+            .popup-content { max-width: 380px; }
         }
     </style>
 </head>
 <body>
-    <!-- 悬浮窗口 - 完全原样 -->
+    <!-- 悬浮窗口 原样 -->
     <div class="floating-window">
         <video id="videoPlayer" autoplay muted playsinline webkit-playsinline controls>
             <source src="https://livesec.mudu.tv/watch/4dqzgr.m3u8" type="application/x-mpegURL">
-            您的浏览器不支持视频播放。
         </video>
     </div>
 
-    <!-- 主内容 iframe - 完全原样 -->
+    <!-- 主iframe 原样 -->
     <iframe src="https://mudu.tv/live/watch/mnj1054l" allowfullscreen></iframe>
 
-    <!-- 圆角长方形按钮组 -->
+    <!-- 右侧悬浮按钮 原样 -->
     <div class="action-buttons">
-        <!-- 声音控制按钮 -->
         <div class="action-btn" id="soundToggleBtn">
-            <div class="btn-content">
-                <span class="btn-icon" id="soundIcon">🔇</span>
-                <span class="btn-text" id="soundText">开启声音</span>
-            </div>
+            <div class="btn-content"><span class="btn-icon" id="soundIcon">🔇</span><span class="btn-text" id="soundText">开启声音</span></div>
         </div>
-        <!-- 私信按钮 -->
         <div class="action-btn" id="messageBtn">
-            <div class="btn-content">
-                <span class="btn-icon">💬</span>
-                <span class="btn-text">私信主播</span>
-            </div>
+            <div class="btn-content"><span class="btn-icon">💬</span><span class="btn-text">私信主播</span></div>
         </div>
     </div>
 
-    <!-- 第一层弹窗 - 私密互动空间 -->
+    <!-- 第一层弹窗 - 底部卡片 (完全保留，仅修改按钮行为) -->
     <div class="message-popup" id="messagePopup">
         <div class="popup-content">
             <div class="popup-header">
@@ -533,38 +282,28 @@
                 <button class="close-popup" id="closePopup">×</button>
             </div>
             <div class="popup-body">
-                <!-- 目标文字已设置为白色（通过CSS） -->
-                <div class="highlight">新加入用户需下载注册自己的ID账号</br>并在下方私信主播 免费邀请进房</div>
+                <div class="highlight">新加入用户需下载注册自己的ID账号<br>并在下方私信主播 免费邀请进房</div>
                 
-                <!-- 下载区域 -->
                 <div class="download-section">
                     <div class="download-title">📱 检测到您的手机未安装私密互动APP</div>
                     <button class="download-btn" id="downloadAppBtn">
-                        <span class="download-icon">⬇️</span>
-                        <span>点击下载APP并注册自己的ID</span>
+                        <span class="download-icon">⬇️</span><span>点击下载APP并注册自己的ID</span>
                     </button>
                     <div class="device-info" id="deviceInfo">正在检测手机系统中...</div>
                 </div>
-                <!-- 注册说明 - 简化流程，突出“回来后的操作” -->
-                <div class="register-note" style="background: rgba(255,215,0,0.1); border-left-color: #ffd700;">
+                <div class="register-note">
                     <p style="color:#ffd700; font-weight:bold; text-align:center;">📲 安装并注册自己ID账号后，按下方操作进入房间</p>
                 </div>
-
-                <!-- 截图保存提示 - 第一步 -->
                 <div class="screenshot-tip">
                      <p><strong>① 截图保存自己的ID账号</strong> 打开APP → 右下角“我的” → 截图你的ID页面</p>
                 </div>
-                <!-- 私信主播 - 第二步 -->
                 <div class="screenshot-tip">
                       <p><strong>② 点击下方按钮私信主播</strong> 发送ID截图，立即免费进房</p>
                 </div>
-                <!-- 私信主播按钮 - 打开客服弹窗 -->
-                <button class="private-chat-btn" id="openCustomerBtn">
-                    
+                <!-- 私信主播按钮：点击后在新窗口打开客服页面，不再显示第二层弹窗 -->
+                <button class="private-chat-btn" id="openCustomerNewWindowBtn">
                     <span>私信主播 <span class="chat-icon">💌</span> 进入私密房</span>
                 </button>
-
-                <!-- 底部提示 -->
                 <div class="step-text">
                     <div class="bonus-text">🎁 激活后互动无限制 | 仅限18+海外华人</div>
                 </div>
@@ -572,236 +311,140 @@
         </div>
     </div>
 
-    <!-- 第二层弹窗 - 客服页面 -->
-    <div class="customer-popup" id="customerPopup">
-        <div class="customer-content">
-            <div class="customer-header">
-                <h3><span>💬</span>发送您注册的ID截图免费邀请您进来！</h3>
-                <button class="close-customer" id="closeCustomerBtn">×</button>
-            </div>
-            <iframe class="customer-iframe" id="customerIframe" src="about:blank"></iframe>
-        </div>
-    </div>
+    <!-- 第二层弹窗HTML结构已完全删除，不再存在 customerPopup 相关代码 -->
 
     <script>
-        // 获取元素
-        const videoElement = document.getElementById('videoPlayer');
-        const soundToggleBtn = document.getElementById('soundToggleBtn');
-        const soundIcon = document.getElementById('soundIcon');
-        const soundText = document.getElementById('soundText');
-        const messageBtn = document.getElementById('messageBtn');
-        const messagePopup = document.getElementById('messagePopup');
-        const closePopup = document.getElementById('closePopup');
-        const downloadBtn = document.getElementById('downloadAppBtn');
-        const deviceInfo = document.getElementById('deviceInfo');
-        const openCustomerBtn = document.getElementById('openCustomerBtn');
-        const customerPopup = document.getElementById('customerPopup');
-        const closeCustomerBtn = document.getElementById('closeCustomerBtn');
-        const customerIframe = document.getElementById('customerIframe');
-
-        // 下载链接配置 (请替换为实际链接)
-        const DOWNLOAD_LINKS = {
-            android: 'https://play.google.com/store/search?q=yoka%20live', // 替换为实际的安卓下载链接
-            ios: 'https://aq.lumawang.com/yokaapp' // 替换为实际的苹果下载链接
-        };
-
-        // 客服系统链接
-        const CUSTOMER_SERVICE_URL = 'https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53';
-
-        // 检测设备类型
-        function detectDevice() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        (function() {
+            const videoElement = document.getElementById('videoPlayer');
+            const soundToggleBtn = document.getElementById('soundToggleBtn');
+            const soundIcon = document.getElementById('soundIcon');
+            const soundText = document.getElementById('soundText');
+            const messageBtn = document.getElementById('messageBtn');
+            const messagePopup = document.getElementById('messagePopup');
+            const closePopup = document.getElementById('closePopup');
+            const downloadBtn = document.getElementById('downloadAppBtn');
+            const deviceInfo = document.getElementById('deviceInfo');
             
-            // 检测安卓
-            if (/android/i.test(userAgent)) {
-                return 'android';
+            // 获取新按钮 —— 私信主播 在新窗口打开
+            const openCustomerNewWindowBtn = document.getElementById('openCustomerNewWindowBtn');
+
+            // 下载链接配置 (与原代码一致)
+            const DOWNLOAD_LINKS = {
+                android: 'https://play.google.com/store/search?q=yoka%20live',
+                ios: 'https://aq.lumawang.com/yokaapp'
+            };
+            // 客服页面URL (新窗口打开)
+            const CUSTOMER_SERVICE_URL = 'https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53';
+
+            // 设备检测
+            function detectDevice() {
+                const ua = navigator.userAgent;
+                if (/android/i.test(ua)) return 'android';
+                if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+                if (/MicroMessenger/i.test(ua)) return 'wechat';
+                return 'other';
             }
-            
-            // 检测iOS
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                return 'ios';
-            }
-            
-            // 检测微信内置浏览器
-            if (/MicroMessenger/i.test(userAgent)) {
-                return 'wechat';
-            }
-            
-            return 'other';
-        }
 
-        // 更新设备信息显示
-        function updateDeviceInfo() {
-            const device = detectDevice();
-            let infoText = '';
-            
-            switch(device) {
-                case 'android':
-                    infoText = '📱 您的手机为安卓系统,已为您获取到适配APP';
-                    break;
-                case 'ios':
-                    infoText = '🍎 您的手机为iOS系统,已为您获取到适配APP';
-                    break;
-                case 'wechat':
-                    infoText = '⚠️ 微信内请用浏览器打开';
-                    break;
-                default:
-                    infoText = '📲 点击下载按钮';
-            }
-            
-            deviceInfo.textContent = infoText;
-            return device;
-        }
-
-        // 下载按钮点击事件 - 新窗口打开下载链接
-        downloadBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const device = detectDevice();
-            
-            let message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击下方「私信主播 发送截图」按钮发送ID截图，即可免费进入私密房间。';
-            
-            if (device === 'android') {
-                if (confirm(message)) {
-                    window.open(DOWNLOAD_LINKS.android, '_blank');
+            function updateDeviceInfo() {
+                const device = detectDevice();
+                let infoText = '';
+                switch(device) {
+                    case 'android': infoText = '📱 您的手机为安卓系统,已为您获取到适配APP'; break;
+                    case 'ios': infoText = '🍎 您的手机为iOS系统,已为您获取到适配APP'; break;
+                    case 'wechat': infoText = '⚠️ 微信内请用浏览器打开'; break;
+                    default: infoText = '📲 点击下载按钮';
                 }
-            } else if (device === 'ios') {
-                if (confirm(message)) {
-                    window.open(DOWNLOAD_LINKS.ios, '_blank');
-                }
-            } else if (device === 'wechat') {
-                alert('请点击右上角菜单，选择"在浏览器中打开"后下载APP。\n\n下载注册完成后，再返回浏览器按流程操作。');
-                if (confirm('是否尝试打开下载链接？(建议先用浏览器打开)')) {
-                    window.open(DOWNLOAD_LINKS.android, '_blank');
-                }
-            } else {
-                if (confirm('无法识别您的手机系统。\n\n是否前往安卓下载页？点击"确定"去安卓，点击"取消"去iOS下载页。\n\n请下载注册后返回本页面操作。')) {
-                    window.open(DOWNLOAD_LINKS.android, '_blank');
+                deviceInfo.textContent = infoText;
+                return device;
+            }
+
+            // 下载按钮事件 (不变)
+            downloadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const device = detectDevice();
+                const message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击下方「私信主播」按钮在发送你的ID截图即可进入。';
+                
+                if (device === 'android' || device === 'ios') {
+                    if (confirm(message)) {
+                        window.open(device === 'android' ? DOWNLOAD_LINKS.android : DOWNLOAD_LINKS.ios, '_blank');
+                    }
+                } else if (device === 'wechat') {
+                    alert('请点击右上角菜单，选择"在浏览器中打开"后下载APP。\n\n下载注册完成后，再返回浏览器操作。');
+                    if (confirm('是否尝试打开下载链接？(建议先用浏览器打开)')) {
+                        window.open(DOWNLOAD_LINKS.android, '_blank');
+                    }
                 } else {
-                    window.open(DOWNLOAD_LINKS.ios, '_blank');
+                    if (confirm('无法识别您的手机系统。\n\n点击"确定"去安卓下载，点击"取消"去iOS下载页。')) {
+                        window.open(DOWNLOAD_LINKS.android, '_blank');
+                    } else {
+                        window.open(DOWNLOAD_LINKS.ios, '_blank');
+                    }
                 }
-            }
-        });
+            });
 
-        // 打开客服弹窗 - 修复安卓显示问题
-        openCustomerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            // 设置客服页面URL - 确保在安卓上也能加载
-            customerIframe.src = CUSTOMER_SERVICE_URL;
-            
-            // 显示客服弹窗 - 添加一个小的延迟确保DOM更新
-            setTimeout(() => {
-                customerPopup.classList.add('show');
-            }, 10);
-            
-            // 确保第一层弹窗保持显示
-            // 注意：不关闭第一层弹窗，让两个弹窗同时显示
-        });
+            // 私信主播 在新窗口打开客服页面 (不再使用弹窗)
+            openCustomerNewWindowBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // 直接在新标签页打开客服链接
+                window.open(CUSTOMER_SERVICE_URL, '_blank');
+                // 可根据需要选择是否关闭底部弹窗 (这里保留弹窗不关闭，让用户自行关闭)
+                // 如果想点击后自动关闭底部弹窗，可取消下面注释:
+                // closeMessagePopup();
+            });
 
-        // 尝试自动播放
-        videoElement.play().catch(error => {
-            console.log('自动播放被阻止:', error);
-        });
+            // 视频自动播放尝试
+            videoElement.play().catch(() => {});
+            document.addEventListener('click', function() { videoElement.play(); }, { once: true });
 
-        // 监听用户交互事件，尝试播放视频
-        document.addEventListener('click', () => {
-            videoElement.play();
-        });
+            // 声音切换
+            soundToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (videoElement.muted) {
+                    videoElement.muted = false;
+                    this.classList.add('sound-on');
+                    soundIcon.textContent = '🔊';
+                    soundText.textContent = '关闭声音';
+                } else {
+                    videoElement.muted = true;
+                    this.classList.remove('sound-on');
+                    soundIcon.textContent = '🔇';
+                    soundText.textContent = '开启声音';
+                }
+            });
 
-        // 声音控制功能
-        soundToggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            if (videoElement.muted) {
-                videoElement.muted = false;
-                this.classList.add('sound-on');
-                soundIcon.textContent = '🔊';
-                soundText.textContent = '关闭声音';
-            } else {
-                videoElement.muted = true;
-                this.classList.remove('sound-on');
-                soundIcon.textContent = '🔇';
-                soundText.textContent = '开启声音';
-            }
-        });
+            // 私信按钮 -> 打开底部弹窗
+            messageBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                messagePopup.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                updateDeviceInfo();
+            });
 
-        // 私信按钮点击事件 - 打开第一层弹窗
-        messageBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            messagePopup.classList.add('show');
-            document.body.style.overflow = 'hidden';
-            
-            // 每次打开弹窗时更新设备信息
-            updateDeviceInfo();
-        });
-
-        // 关闭第一层弹窗
-        closePopup.addEventListener('click', function() {
-            messagePopup.classList.remove('show');
-            document.body.style.overflow = '';
-            
-            // 如果第二层弹窗开着，也一起关闭
-            if (customerPopup.classList.contains('show')) {
-                customerPopup.classList.remove('show');
-                customerIframe.src = 'about:blank';
-            }
-        });
-
-        // 点击第一层弹窗外部关闭
-        messagePopup.addEventListener('click', function(e) {
-            if (e.target === messagePopup) {
+            // 关闭底部弹窗函数
+            function closeMessagePopup() {
                 messagePopup.classList.remove('show');
                 document.body.style.overflow = '';
-                
-                // 如果第二层弹窗开着，也一起关闭
-                if (customerPopup.classList.contains('show')) {
-                    customerPopup.classList.remove('show');
-                    customerIframe.src = 'about:blank';
+            }
+
+            closePopup.addEventListener('click', closeMessagePopup);
+            messagePopup.addEventListener('click', function(e) {
+                if (e.target === messagePopup) {
+                    closeMessagePopup();
                 }
-            }
-        });
-
-        // 关闭第二层弹窗
-        closeCustomerBtn.addEventListener('click', function() {
-            customerPopup.classList.remove('show');
-            customerIframe.src = 'about:blank';
-            
-            // 注意：不关闭第一层弹窗，只隐藏第二层
-        });
-
-        // 点击第二层弹窗外部关闭
-        customerPopup.addEventListener('click', function(e) {
-            if (e.target === customerPopup) {
-                customerPopup.classList.remove('show');
-                customerIframe.src = 'about:blank';
-                
-                // 注意：不关闭第一层弹窗，只隐藏第二层
-            }
-        });
-
-        // 阻止第一层弹窗内容点击事件冒泡
-        document.querySelector('.popup-content').addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // 阻止第二层弹窗内容点击事件冒泡
-        document.querySelector('.customer-content').addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // 页面加载时检测设备
-        updateDeviceInfo();
-
-        // 额外修复：确保在安卓上触摸事件正常传递
-        if (/android/i.test(navigator.userAgent)) {
-            // 为所有可点击元素增加触摸处理
-            const clickableElements = document.querySelectorAll('.action-btn, .download-btn, .private-chat-btn, .close-popup, .close-customer');
-            clickableElements.forEach(el => {
-                el.addEventListener('touchstart', function(e) {
-                    // 仅用于触发触摸事件，不阻止默认行为
-                }, { passive: true });
             });
-        }
+
+            // 阻止内容冒泡
+            document.querySelector('.popup-content').addEventListener('click', e => e.stopPropagation());
+
+            // 初始化设备信息
+            updateDeviceInfo();
+
+            // 安卓触摸增强
+            if (/android/i.test(navigator.userAgent)) {
+                const taps = document.querySelectorAll('.action-btn, .download-btn, .private-chat-btn, .close-popup');
+                taps.forEach(el => el.addEventListener('touchstart', ()=>{}, { passive: true }));
+            }
+        })();
     </script>
 </body>
 </html>
