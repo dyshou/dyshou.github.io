@@ -362,7 +362,7 @@
             downloadBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const device = detectDevice();
-                const message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击下方「私信主播」按钮在发送你的ID截图即可进入。';
+                const message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击下方「私信主播」按钮然后发送你的ID截图即可进入。';
                 
                 if (device === 'android' || device === 'ios') {
                     if (confirm(message)) {
