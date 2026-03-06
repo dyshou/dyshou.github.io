@@ -136,7 +136,7 @@
             }
         }
 
-        /* ========= 左侧礼物栏 - 现在只有两个礼物 ========= */
+        /* ========= 左侧礼物栏 - 使用本地图片(气球/天鹅) ========= */
         .left-gift-panel {
             position: fixed;
             left: 20px;
@@ -186,11 +186,14 @@
             transform: scale(0.97) translateX(3px);
         }
 
-        .gift-icon {
-            font-size: 42px;
-            line-height: 1.2;
-            filter: drop-shadow(0 5px 6px black);
-            margin-bottom: 4px;
+        /* 礼物图片样式——统一尺寸，完美适配卡片 */
+        .gift-icon-img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;          /* 保持比例，不裁剪 */
+            display: block;
+            margin: 0 auto 4px auto;
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
         }
 
         .gift-name {
@@ -245,6 +248,7 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
 
+        /* 适配移动端图片尺寸 */
         @media (max-width: 768px) {
             .left-gift-panel {
                 left: 15px;
@@ -256,8 +260,9 @@
                 min-width: 115px;
                 border-radius: 22px;
             }
-            .gift-icon {
-                font-size: 38px;
+            .gift-icon-img {
+                width: 48px;
+                height: 48px;
             }
             .gift-name {
                 font-size: 15px;
@@ -282,8 +287,9 @@
                 min-width: 100px;
                 border-radius: 20px;
             }
-            .gift-icon {
-                font-size: 34px;
+            .gift-icon-img {
+                width: 42px;
+                height: 42px;
             }
             .gift-name {
                 font-size: 13px;
@@ -732,27 +738,30 @@
         
         <div id="touch-protection"></div>
 
-        <!-- ===== 左侧礼物栏 - 2个礼物：甜甜圈 + 天鹅 ===== -->
+        <!-- ===== 左侧礼物栏 - 2个礼物：气球(qiqiu.png) + 天鹅(tiane.png) ===== -->
         <div class="left-gift-panel" id="giftPanel">
-            <!-- 礼物1: 甜甜圈（原柯基犬位置） - 30钻石，保留写真福利 -->
-            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送甜甜圈30钻石获得本直播间永久观看权限【永久不踢】">
-                <span class="gift-icon">🍩</span>
+            <!-- 礼物1: 气球 (原甜甜圈位置) 使用本地图片 qiqiu.png，钻石200，福利永久观看 -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送气球200钻石获得本直播间永久观看权限【永久不踢】">
+                <img src="qiqiu.png" alt="气球礼物" class="gift-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <!-- 如果图片加载失败则显示后备文字 (几乎不会发生, 但为了健壮保留) -->
+                <span class="gift-fallback" style="display:none; font-size:42px;">🎈</span>
                 <span class="gift-name">
-                    甜甜圈X1
-                    <span class="gift-diamonds">30</span>
+                    气球X1
+                    <span class="gift-diamonds">200</span>
                 </span>
                 <span class="gift-perk">获得本直播间永久观看权限【永久不踢】</span>
             </div>
-            <!-- 礼物2: 天鹅 - 699钻石 (完全保留原有设计) -->
+            <!-- 礼物2: 天鹅 - 使用本地图片 tiane.png，钻石699，1v1福利 -->
             <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送天鹅699钻石与主播1对1视频聊天">
-                <span class="gift-icon">🦢</span>
+                <img src="tiane.png" alt="天鹅礼物" class="gift-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span class="gift-fallback" style="display:none; font-size:42px;">🦢</span>
                 <span class="gift-name">
                     天鹅X1
                     <span class="gift-diamonds">699</span>
                 </span>
-                <span class="gift-perk">与主播1对1视频聊天</br>【听指挥】</span>
+                <span class="gift-perk">与主播1对1视频聊天<br>【听指挥】</span>
             </div>
-            <!-- 宇宙礼物卡片已移除，礼物栏现在只有两个卡片 -->
+            <!-- 宇宙礼物卡片已移除，现在只有两个卡片 -->
         </div>
 
         <!-- ===== 右下角私信主播按钮 ===== -->
@@ -764,7 +773,7 @@
     <!-- 中央弹窗提醒 (原有的短暂兑换提示) -->
     <div id="reminderToast" class="reminder-toast">在TikTok直播间刷礼物回这里兑换</div>
 
-    <!-- 新增的「即将被踢」警告弹窗 (与礼物面板隐藏/显示联动) 已修改为多行完全展示 -->
+    <!-- 新增的「即将被踢」警告弹窗 (与礼物面板隐藏/显示联动) -->
     <div id="kickWarningToast" class="kick-warning-toast"></div>
 
     <!-- 客服浮层 -->
@@ -857,7 +866,7 @@
                 }, 4000);
             }
 
-            // 两个礼物卡片点击事件 (现在只有两个.gift-item)
+            // 两个礼物卡片点击事件 (使用.gift-item, 已替换为图片)
             document.querySelectorAll('.gift-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -934,11 +943,10 @@
             });
 
             // 额外安全处理：如果用户通过其他方式（比如私信按钮）我们也可以保持逻辑，但礼物点击已覆盖主要场景。
-            // 为了更加健壮，也可在私信按钮点击时重置？但按照需求，只需礼物点击重置即可。
         });
     </script>
+    <!-- 51la统计 -->
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3MMbwWnFGhsLlegW",ck:"3MMbwWnFGhsLlegW"})</script>
 </body>
-<!-- 仅保留51la统计 -->
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3MMbwWnFGhsLlegW",ck:"3MMbwWnFGhsLlegW"})</script>
 </html>
