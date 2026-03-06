@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私密直播间</title>
+    <title>私密直播间 · 精简礼物</title>
     <!-- 引入 hls.js 库以更好地支持HLS播放 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -136,7 +136,7 @@
             }
         }
 
-        /* ========= 左侧礼物栏 ========= */
+        /* ========= 左侧礼物栏 - 现在只有两个礼物 ========= */
         .left-gift-panel {
             position: fixed;
             left: 20px;
@@ -472,7 +472,7 @@
             }
         }
 
-        /* 中央弹窗提醒 */
+        /* 中央弹窗提醒 (原有的礼物兑换提示) */
         .reminder-toast {
             position: fixed;
             top: 50%;
@@ -518,26 +518,87 @@
             vertical-align: middle;
         }
 
-        @media (max-width: 768px) {
-            .reminder-toast {
-                font-size: 14px;
-                padding: 12px 18px;
-            }
-            .reminder-toast::before,
-            .reminder-toast::after {
-                font-size: 18px;
-            }
+        /* ===== 新增的「即将被踢」警告弹窗 - 多行文字完全展示 ===== */
+        .kick-warning-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 35000; /* 比礼物兑换toast更高，确保可见 */
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: #fff;
+            padding: 28px 30px;
+            border-radius: 36px;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 0 0 4px rgba(255, 50, 50, 0.7) inset;
+            border: 2px solid #ff4444;
+            max-width: 90vw;
+            width: auto;
+            min-width: 280px;
+            word-break: break-word;      /* 允许长单词换行 */
+            white-space: normal;          /* 正常换行 */
+            line-height: 1.5;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px black;
         }
+
+        .kick-warning-toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 使用伪元素构建多行内容，保证文字完整显示 */
+        .kick-warning-toast::before {
+            content: "⚠️即将被踢出直播间⚠️";
+            display: block;
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: #ff8888;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .kick-warning-toast::after {
+            content: "请您尽快去TikTok直播间刷礼物即可获取本直播间【永久不踢】权限";
+            display: block;
+            font-size: 16px;
+            margin-top: 18px;
+            color: #ffd966;
+            font-weight: 500;
+            background: rgba(255,255,255,0.1);
+            padding: 14px 18px;
+            border-radius: 40px;
+            border-left: 4px solid gold;
+            white-space: normal;          /* 强制多行 */
+            word-break: break-word;       /* 确保长词或符号换行 */
+            line-height: 1.5;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 针对超小屏幕进一步调整内边距和字号，确保不溢出 */
         @media (max-width: 480px) {
-            .reminder-toast {
-                font-size: 12px;
-                padding: 10px 14px;
-            }
-            .reminder-toast::before,
-            .reminder-toast::after {
+            .kick-warning-toast {
+                padding: 20px 18px;
                 font-size: 16px;
-                margin-right: 5px;
-                margin-left: 5px;
+                min-width: 240px;
+            }
+            .kick-warning-toast::before {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+            .kick-warning-toast::after {
+                font-size: 14px;
+                padding: 12px 12px;
+                margin-top: 14px;
             }
         }
 
@@ -649,12 +710,12 @@
         <!-- 跑马灯公告放在最上面 -->
         <div class="marquee-reminder">
             <div class="marquee-content">
-               <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
-               <span>🎉 公告：在TikTok直播间刷礼物回这个直播间兑换</span>
-               <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+               <span>公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
+               <span>🎉 公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
+               <span>公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
                 <span>💎 恭喜 “优雅使者” 送出宇宙</span>
-                <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
-                <span>🎉 公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+                <span>公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
+                <span>🎉 公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
             </div>
         </div>
 
@@ -671,35 +732,27 @@
         
         <div id="touch-protection"></div>
 
-        <!-- ===== 左侧礼物栏 ===== -->
+        <!-- ===== 左侧礼物栏 - 2个礼物：甜甜圈 + 天鹅 ===== -->
         <div class="left-gift-panel" id="giftPanel">
-            <!-- 礼物1: 柯基犬 - 299钻石 -->
-            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送柯基犬299钻石可得主播写真">
-                <span class="gift-icon">🐕</span>
+            <!-- 礼物1: 甜甜圈（原柯基犬位置） - 30钻石，保留写真福利 -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送甜甜圈30钻石获得本直播间永久观看权限【永久不踢】">
+                <span class="gift-icon">🍩</span>
                 <span class="gift-name">
-                    柯基犬X1
-                    <span class="gift-diamonds">299</span>
+                    甜甜圈X1
+                    <span class="gift-diamonds">30</span>
                 </span>
-                <span class="gift-perk">送主播自拍写真一套</span>
+                <span class="gift-perk">获得本直播间永久观看权限【永久不踢】</span>
             </div>
-            <!-- 礼物2: 天鹅 - 699钻石 -->
-            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送天鹅699钻石可得永久更新">
+            <!-- 礼物2: 天鹅 - 699钻石 (完全保留原有设计) -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送天鹅699钻石与主播1对1视频聊天">
                 <span class="gift-icon">🦢</span>
                 <span class="gift-name">
                     天鹅X1
                     <span class="gift-diamonds">699</span>
                 </span>
-                <span class="gift-perk">送主播自拍永久更新</span>
+                <span class="gift-perk">与主播1对1视频聊天</br>【听指挥】</span>
             </div>
-            <!-- 礼物3: 宇宙 - 1000钻石 -->
-            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送宇宙1000钻石可一对一视频电话">
-                <span class="gift-icon">🌌</span>
-                <span class="gift-name">
-                    宇宙X1
-                    <span class="gift-diamonds">1000</span>
-                </span>
-                <span class="gift-perk">1V1视频电话十分钟听你指挥</span>
-            </div>
+            <!-- 宇宙礼物卡片已移除，礼物栏现在只有两个卡片 -->
         </div>
 
         <!-- ===== 右下角私信主播按钮 ===== -->
@@ -708,15 +761,18 @@
         </div>
     </div>
 
-    <!-- 中央弹窗提醒 -->
+    <!-- 中央弹窗提醒 (原有的短暂兑换提示) -->
     <div id="reminderToast" class="reminder-toast">在TikTok直播间刷礼物回这里兑换</div>
+
+    <!-- 新增的「即将被踢」警告弹窗 (与礼物面板隐藏/显示联动) 已修改为多行完全展示 -->
+    <div id="kickWarningToast" class="kick-warning-toast"></div>
 
     <!-- 客服浮层 -->
     <div id="serviceLayer" class="service-layer">
         <div class="service-card">
             <div class="service-header">
                 <h3>
-                    <span>👩‍💼</span> 主播小助理 · 私信通道
+                    <span>👩‍💼</span> 与主播的私信通道
                 </h3>
                 <div class="close-service" id="closeServiceBtn" role="button" tabindex="0" aria-label="关闭私信窗口">✕</div>
             </div>
@@ -739,10 +795,13 @@
             const closeServiceBtn = document.getElementById('closeServiceBtn');
             
             const giftPanel = document.getElementById('giftPanel');
+            // 新增：获取即将被踢警告元素
+            const kickWarning = document.getElementById('kickWarningToast');
+
             let giftHideTimer = null;
             let giftShowTimer = null;
-            const HIDE_DURATION = 30000;
-            const SHOW_DURATION = 30000;
+            const HIDE_DURATION = 30000;   // 隐藏时长30秒（面板隐藏后多久再次出现）
+            const SHOW_DURATION = 30000;    // 显示时长30秒（面板出现后多久隐藏）
 
             const videoSrc = 'https://livesec.mudu.tv/watch/0839nf.m3u8';
 
@@ -798,6 +857,7 @@
                 }, 4000);
             }
 
+            // 两个礼物卡片点击事件 (现在只有两个.gift-item)
             document.querySelectorAll('.gift-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -833,28 +893,48 @@
                 }
             });
 
+            // ========== 礼物面板自动隐藏逻辑 + 联动警告弹窗 ==========
             function hideGiftPanel() {
                 giftPanel.classList.add('hidden');
+                // 当礼物面板隐藏时，显示“即将被踢”警告
+                kickWarning.classList.add('show');
+                
                 if (giftShowTimer) clearTimeout(giftShowTimer);
+                // 设置计时器：HIDE_DURATION 后自动显示面板（并隐藏警告）
                 giftShowTimer = setTimeout(showGiftPanel, HIDE_DURATION);
             }
 
             function showGiftPanel() {
                 giftPanel.classList.remove('hidden');
+                // 当礼物面板出现时，隐藏警告
+                kickWarning.classList.remove('show');
+                
                 if (giftHideTimer) clearTimeout(giftHideTimer);
+                // 设置计时器：SHOW_DURATION 后自动隐藏面板（并显示警告）
                 giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
             }
 
+            // 启动循环：一开始面板是显示的，所以设置一个隐藏定时器
             giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
 
+            // 点击任意礼物时重置计时器：面板继续显示，隐藏警告（如果存在），重新开始显示周期
             document.querySelectorAll('.gift-item').forEach(item => {
                 item.addEventListener('click', function() {
+                    // 清除所有计时器
                     if (giftHideTimer) clearTimeout(giftHideTimer);
                     if (giftShowTimer) clearTimeout(giftShowTimer);
+                    
+                    // 确保面板可见，警告消失
                     giftPanel.classList.remove('hidden');
+                    kickWarning.classList.remove('show');
+                    
+                    // 重新开始显示周期：SHOW_DURATION 后再次隐藏
                     giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
                 });
             });
+
+            // 额外安全处理：如果用户通过其他方式（比如私信按钮）我们也可以保持逻辑，但礼物点击已覆盖主要场景。
+            // 为了更加健壮，也可在私信按钮点击时重置？但按照需求，只需礼物点击重置即可。
         });
     </script>
 </body>
