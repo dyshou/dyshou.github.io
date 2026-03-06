@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小课堂 · 直播礼物 · TikTok钻石版</title>
+    <!-- 引入 hls.js 库以更好地支持HLS播放 -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            color: #fff;
+        }
+
+        #player-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        #touch-protection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* ========= 顶部信息区域 - 跑马灯在最上面 ========= */
+        .marquee-reminder {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            z-index: 15000;
+            background: rgba(255, 75, 75, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: white;
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(255,215,0,0.5);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scrollMarquee 18s linear infinite;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .marquee-content span {
+            margin-right: 40px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 14px;
+            border-radius: 40px;
+            border-left: 2px solid gold;
+        }
+
+        @keyframes scrollMarquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* 直播间标题信息放在跑马灯下方 */
+        .video-info {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 移动端微调 */
+        @media (max-width: 768px) {
+            .marquee-reminder {
+                top: 15px;
+                padding: 8px 0;
+                font-size: 14px;
+            }
+            .video-info {
+                top: 80px;
+            }
+        }
+        @media (max-width: 480px) {
+            .marquee-reminder {
+                top: 10px;
+                padding: 6px 0;
+                font-size: 13px;
+            }
+            .video-info {
+                top: 70px;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* ========= 左侧礼物栏 ========= */
+        .left-gift-panel {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 160px;
+            width: auto;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .left-gift-panel.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .gift-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20, 20, 30, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 16px 10px;
+            border: 1.5px solid rgba(255, 215, 0, 0.5);
+            transition: transform 0.2s, background 0.2s, border-color 0.2s;
+            cursor: pointer;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            min-width: 130px;
+        }
+
+        .gift-card:hover {
+            background: rgba(255, 215, 0, 0.25);
+            border-color: rgba(255, 215, 0, 0.9);
+            transform: scale(1.04) translateX(4px);
+        }
+
+        .gift-card:active {
+            transform: scale(0.97) translateX(3px);
+        }
+
+        .gift-icon {
+            font-size: 42px;
+            line-height: 1.2;
+            filter: drop-shadow(0 5px 6px black);
+            margin-bottom: 4px;
+        }
+
+        .gift-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-top: 4px;
+            letter-spacing: 0.4px;
+            text-shadow: 0 2px 4px black;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .gift-diamonds {
+            font-size: 13px;
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-left: 3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .gift-diamonds::before {
+            content: "💎";
+            font-size: 11px;
+            -webkit-text-fill-color: initial;
+            color: #4ee0ff;
+            margin-right: 2px;
+        }
+
+        .gift-perk {
+            font-size: 10px;
+            color: #ffd966;
+            margin-top: 6px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.3;
+            border-left: 2px solid #ffd700;
+            width: 100%;
+            word-break: break-word;
+            white-space: normal;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .left-gift-panel {
+                left: 15px;
+                gap: 12px;
+                max-width: 140px;
+            }
+            .gift-card {
+                padding: 14px 8px;
+                min-width: 115px;
+                border-radius: 22px;
+            }
+            .gift-icon {
+                font-size: 38px;
+            }
+            .gift-name {
+                font-size: 15px;
+            }
+            .gift-diamonds {
+                font-size: 12px;
+            }
+            .gift-perk {
+                font-size: 9px;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .left-gift-panel {
+                left: 10px;
+                gap: 10px;
+                max-width: 120px;
+            }
+            .gift-card {
+                padding: 12px 6px;
+                min-width: 100px;
+                border-radius: 20px;
+            }
+            .gift-icon {
+                font-size: 34px;
+            }
+            .gift-name {
+                font-size: 13px;
+            }
+            .gift-diamonds {
+                font-size: 11px;
+            }
+            .gift-perk {
+                font-size: 8px;
+                padding: 3px 6px;
+            }
+        }
+
+        /* ========= 右上角声音按钮 - 与直播间标题对齐 ========= */
+        #sound-control-container {
+            position: fixed;
+            top: 90px;                     /* 与 .video-info 的 top 值保持一致 */
+            right: 20px;
+            z-index: 10000;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 0;                     /* 移除内边距，由按钮控制 */
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #toggle-sound {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+            white-space: nowrap;
+            position: relative;
+            z-index: 10001;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #toggle-sound:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #toggle-sound:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #toggle-sound::before {
+            content: "🔇";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        #toggle-sound.unmuted::before {
+            content: "🔊";
+        }
+
+        /* 移动端调整声音按钮位置 */
+        @media (max-width: 768px) {
+            #sound-control-container {
+                top: 80px;                  /* 与 .video-info 的移动端 top 值一致 */
+                right: 15px;
+            }
+            #toggle-sound {
+                padding: 8px 16px;
+                min-width: 110px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sound-control-container {
+                top: 70px;                  /* 与 .video-info 的移动端 top 值一致 */
+                right: 10px;
+            }
+            #toggle-sound {
+                padding: 6px 12px;
+                min-width: 100px;
+                font-size: 13px;
+            }
+        }
+
+        /* ========= 右下角私信主播按钮 (单独放置) ========= */
+        .dm-corner-btn {
+            position: fixed;
+            right: 25px;
+            bottom: 100px;
+            z-index: 25000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #9146ff, #6f2dbd);
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            box-shadow: 0 10px 25px rgba(145, 70, 255, 0.5), 0 0 15px rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            min-width: 140px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: breatheColor 3s ease-in-out infinite;
+        }
+
+        @keyframes breatheColor {
+            0% {
+                background: linear-gradient(145deg, #9146ff, #6f2dbd);
+                box-shadow: 0 10px 25px rgba(145, 70, 255, 0.5), 0 0 15px rgba(255, 255, 255, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                background: linear-gradient(145deg, #b87cff, #8f4ad6);
+                box-shadow: 0 15px 35px rgba(180, 100, 255, 0.8), 0 0 25px #ffb3b3;
+                transform: scale(1.02);
+            }
+            100% {
+                background: linear-gradient(145deg, #9146ff, #6f2dbd);
+                box-shadow: 0 10px 25px rgba(145, 70, 255, 0.5), 0 0 15px rgba(255, 255, 255, 0.3);
+                transform: scale(1);
+            }
+        }
+
+        .dm-corner-btn:hover {
+            animation: none;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 35px rgba(145, 70, 255, 0.7), 0 0 25px #ffd700;
+            background: linear-gradient(145deg, #a55cff, #8142c4);
+        }
+
+        .dm-corner-btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 5px 15px rgba(145, 70, 255, 0.5);
+        }
+
+        .dm-btn-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .dm-corner-btn {
+                right: 20px;
+                bottom: 80px;
+                padding: 12px 20px;
+                min-width: 125px;
+            }
+            .dm-btn-text {
+                font-size: 16px;
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dm-corner-btn {
+                right: 15px;
+                bottom: 70px;
+                padding: 10px 16px;
+                min-width: 110px;
+            }
+            .dm-btn-text {
+                font-size: 14px;
+                padding: 2px 8px;
+            }
+        }
+
+        /* 中央弹窗提醒 */
+        .reminder-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(255,215,0,0.5) inset;
+            border: 1px solid rgba(255,255,255,0.3);
+            white-space: nowrap;
+            max-width: 80vw;
+            white-space: normal;
+            word-break: keep-all;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .reminder-toast.show {
+            opacity: 1;
+        }
+
+        .reminder-toast::before {
+            content: "🎁";
+            margin-right: 8px;
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        .reminder-toast::after {
+            content: "✨";
+            margin-left: 8px;
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .reminder-toast {
+                font-size: 14px;
+                padding: 12px 18px;
+            }
+            .reminder-toast::before,
+            .reminder-toast::after {
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 480px) {
+            .reminder-toast {
+                font-size: 12px;
+                padding: 10px 14px;
+            }
+            .reminder-toast::before,
+            .reminder-toast::after {
+                font-size: 16px;
+                margin-right: 5px;
+                margin-left: 5px;
+            }
+        }
+
+        /* 客服浮层 */
+        .service-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 40000;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.25s ease, visibility 0.25s;
+        }
+
+        .service-layer.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .service-card {
+            width: 90%;
+            max-width: 700px;
+            height: 75vh;
+            max-height: 800px;
+            background: #1a1a2e;
+            border-radius: 36px;
+            border: 2px solid rgba(255, 215, 0, 0.7);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(255,255,255,0.1) inset;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 22px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid #ffd966;
+        }
+
+        .service-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffd966;
+            text-shadow: 0 2px 4px black;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-header h3 span {
+            font-size: 26px;
+        }
+
+        .close-service {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255,215,0,0.5);
+            color: white;
+            font-size: 26px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .close-service:hover {
+            background: #9146ff;
+            border-color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .service-iframe-wrapper {
+            flex: 1;
+            width: 100%;
+            background: #0f0f1a;
+            position: relative;
+        }
+
+        .service-iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="player-container">
+        <video id="video-player" playsinline></video>
+        
+        <!-- 跑马灯公告放在最上面 -->
+        <div class="marquee-reminder">
+            <div class="marquee-content">
+               <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+               <span>🎉 公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+               <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+                <span>💎 恭喜 “优雅使者” 送出宇宙</span>
+                <span>公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+                <span>🎉 公告：在TikTok直播间刷礼物回这个直播间兑换</span>
+            </div>
+        </div>
+
+        <!-- 直播间标题信息 -->
+        <div class="video-info">
+            <div>[美美的私密直播间]</div>
+            <div id="status">正在进入直播间...</div>
+        </div>
+
+        <!-- 声音控制按钮 - 独立放置在右上角，与标题等高 -->
+        <div id="sound-control-container">
+            <button id="toggle-sound">打开声音</button>
+        </div>
+        
+        <div id="touch-protection"></div>
+
+        <!-- ===== 左侧礼物栏 ===== -->
+        <div class="left-gift-panel" id="giftPanel">
+            <!-- 礼物1: 柯基犬 - 299钻石 -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送柯基犬299钻石可得主播写真">
+                <span class="gift-icon">🐕</span>
+                <span class="gift-name">
+                    柯基犬X1
+                    <span class="gift-diamonds">299</span>
+                </span>
+                <span class="gift-perk">送主播自拍写真一套</span>
+            </div>
+            <!-- 礼物2: 天鹅 - 699钻石 -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送天鹅699钻石可得永久更新">
+                <span class="gift-icon">🦢</span>
+                <span class="gift-name">
+                    天鹅X1
+                    <span class="gift-diamonds">699</span>
+                </span>
+                <span class="gift-perk">送主播自拍永久更新</span>
+            </div>
+            <!-- 礼物3: 宇宙 - 1000钻石 -->
+            <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送宇宙1000钻石可一对一视频电话">
+                <span class="gift-icon">🌌</span>
+                <span class="gift-name">
+                    宇宙X1
+                    <span class="gift-diamonds">1000</span>
+                </span>
+                <span class="gift-perk">1V1视频电话十分钟听你指挥</span>
+            </div>
+        </div>
+
+        <!-- ===== 右下角私信主播按钮 ===== -->
+        <div class="dm-corner-btn" id="privateMessageBtn" role="button" tabindex="0" aria-label="私信主播">
+            <span class="dm-btn-text">💬私信主播</span>
+        </div>
+    </div>
+
+    <!-- 中央弹窗提醒 -->
+    <div id="reminderToast" class="reminder-toast">在TikTok直播间刷礼物回这里兑换</div>
+
+    <!-- 客服浮层 -->
+    <div id="serviceLayer" class="service-layer">
+        <div class="service-card">
+            <div class="service-header">
+                <h3>
+                    <span>👩‍💼</span> 主播小助理 · 私信通道
+                </h3>
+                <div class="close-service" id="closeServiceBtn" role="button" tabindex="0" aria-label="关闭私信窗口">✕</div>
+            </div>
+            <div class="service-iframe-wrapper">
+                <iframe src="https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53" title="私信主播" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation" referrerpolicy="no-referrer"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlayer = document.getElementById('video-player');
+            const toggleSoundBtn = document.getElementById('toggle-sound');
+            const touchProtection = document.getElementById('touch-protection');
+            const statusDisplay = document.getElementById('status');
+            const toast = document.getElementById('reminderToast');
+
+            const privateMsgBtn = document.getElementById('privateMessageBtn');
+            const serviceLayer = document.getElementById('serviceLayer');
+            const closeServiceBtn = document.getElementById('closeServiceBtn');
+            
+            const giftPanel = document.getElementById('giftPanel');
+            let giftHideTimer = null;
+            let giftShowTimer = null;
+            const HIDE_DURATION = 30000;
+            const SHOW_DURATION = 30000;
+
+            const videoSrc = 'https://livesec.mudu.tv/watch/0839nf.m3u8';
+
+            function updateStatus(message) {
+                if (statusDisplay) statusDisplay.textContent = message;
+            }
+
+            if (Hls.isSupported()) {
+                updateStatus('主播已切换到私密模式！请私信主播进入...');
+                const hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    updateStatus('进入直播间...');
+                    videoPlayer.muted = true;
+                    videoPlayer.play().then(() => {
+                        updateStatus('直播中 (已静音)');
+                    }).catch(() => updateStatus('点击看直播 (已静音)'));
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) updateStatus('主播已切换到私密模式！请私信主播进入...');
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                updateStatus('主播已切换到私密模式！请私信主播进入...');
+                videoPlayer.src = videoSrc;
+                videoPlayer.addEventListener('loadedmetadata', function() {
+                    videoPlayer.muted = true;
+                    videoPlayer.play().catch(()=>{});
+                    updateStatus('直播中 (已静音)');
+                });
+            } else {
+                updateStatus('浏览器不支持直播，请更换');
+            }
+
+            toggleSoundBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                videoPlayer.muted = !videoPlayer.muted;
+                toggleSoundBtn.textContent = videoPlayer.muted ? '打开声音' : '关闭声音';
+                toggleSoundBtn.classList.toggle('unmuted', !videoPlayer.muted);
+                updateStatus(videoPlayer.muted ? '直播中 (已静音)' : '直播中(声音开)');
+            });
+
+            touchProtection.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+            touchProtection.addEventListener('click', (e) => e.preventDefault());
+
+            let toastTimer = null;
+            function showReminderToast() {
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    toastTimer = null;
+                }, 4000);
+            }
+
+            document.querySelectorAll('.gift-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    item.style.backgroundColor = 'rgba(255, 215, 0, 0.4)';
+                    item.style.transform = 'scale(0.97)';
+                    setTimeout(() => {
+                        item.style.backgroundColor = '';
+                        item.style.transform = '';
+                    }, 200);
+                    showReminderToast();
+                });
+            });
+
+            privateMsgBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                privateMsgBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    privateMsgBtn.style.transform = '';
+                }, 200);
+                serviceLayer.classList.add('show');
+            });
+
+            closeServiceBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                serviceLayer.classList.remove('show');
+            });
+
+            document.querySelector('.service-card').addEventListener('click', (e) => e.stopPropagation());
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && serviceLayer.classList.contains('show')) {
+                    serviceLayer.classList.remove('show');
+                }
+            });
+
+            function hideGiftPanel() {
+                giftPanel.classList.add('hidden');
+                if (giftShowTimer) clearTimeout(giftShowTimer);
+                giftShowTimer = setTimeout(showGiftPanel, HIDE_DURATION);
+            }
+
+            function showGiftPanel() {
+                giftPanel.classList.remove('hidden');
+                if (giftHideTimer) clearTimeout(giftHideTimer);
+                giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+            }
+
+            giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+
+            document.querySelectorAll('.gift-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (giftHideTimer) clearTimeout(giftHideTimer);
+                    if (giftShowTimer) clearTimeout(giftShowTimer);
+                    giftPanel.classList.remove('hidden');
+                    giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+                });
+            });
+        });
+    </script>
+</body>
+<!-- 仅保留51la统计 -->
+<script type="text/javascript" src="//js.users.51.la/21990301.js"></script>
+</html>
