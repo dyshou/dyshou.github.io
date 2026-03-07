@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>在线客服修改位置</title>
+    <title>在线客服</title>
     <style>
         /* 基础重置 */
         * {
@@ -113,12 +113,13 @@
                 <div class="image-container">
                     <!-- 使用一个优雅的占位图片 (来自占位图片服务，深色系以适应夜晚风格) -->
                     <!-- 您也可以随时替换 src 为任何静态图片链接 -->
-                    <img 
-                        class="placeholder-img" 
-                        src="https://placehold.co/1920x1080/1e1e2a/9a9ab0?text=Live+Stream+Placeholder&font=montserrat" 
-                        alt="占位图片"
-                        loading="lazy"
-                    >
+                 <img 
+    class="placeholder-img" 
+    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080'%3E%3Crect width='1920' height='1080' fill='%231e1e2a'/%3E%3Ctext x='50%25' y='45%25' font-family='Arial, sans-serif' font-size='48' fill='%239a9ab0' text-anchor='middle' dominant-baseline='middle'%3E本房间已开启私密模式%3C/text%3E%3Ctext x='50%25' y='55%25' font-family='Arial, sans-serif' font-size='48' fill='%239a9ab0' text-anchor='middle' dominant-baseline='middle'%3E请联系主播激活%3C/text%3E%3C/svg%3E" 
+    alt="私密模式提示"
+    loading="lazy"
+    id="topImage"
+>
                     <!-- 说明：这是一个深色占位图，文字示意。完全可以用纯黑图片替换：直接改为纯黑图片链接如 about:blank 但更好用 data:image 或本地黑色。
                          为了稳妥，同时保留纯黑底色，如果图片加载失败，背景纯黑也不会突兀。 -->
                 </div>
