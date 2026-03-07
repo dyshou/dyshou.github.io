@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私密直播间</title>
+    <title>私密直播间 · 客服延迟加载</title>
     <!-- 引入 hls.js 库以更好地支持HLS播放 -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
+        /* 样式完全保留，未作任何删改 */
         * {
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
@@ -54,7 +55,6 @@
             z-index: 1;
         }
 
-        /* ========= 顶部信息区域 - 跑马灯在最上面 ========= */
         .marquee-reminder {
             position: fixed;
             top: 20px;
@@ -98,7 +98,6 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* 直播间标题信息放在跑马灯下方 */
         .video-info {
             position: fixed;
             top: 90px;
@@ -112,7 +111,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 移动端微调 */
         @media (max-width: 768px) {
             .marquee-reminder {
                 top: 15px;
@@ -136,7 +134,6 @@
             }
         }
 
-        /* ========= 左侧礼物栏 - 使用本地图片(气球/天鹅) ========= */
         .left-gift-panel {
             position: fixed;
             left: 20px;
@@ -186,11 +183,10 @@
             transform: scale(0.97) translateX(3px);
         }
 
-        /* 礼物图片样式——统一尺寸，完美适配卡片 */
         .gift-icon-img {
             width: 56px;
             height: 56px;
-            object-fit: contain;          /* 保持比例，不裁剪 */
+            object-fit: contain;
             display: block;
             margin: 0 auto 4px auto;
             filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
@@ -248,7 +244,6 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
 
-        /* 适配移动端图片尺寸 */
         @media (max-width: 768px) {
             .left-gift-panel {
                 left: 15px;
@@ -303,14 +298,13 @@
             }
         }
 
-        /* ========= 右上角声音按钮 - 与直播间标题对齐 ========= */
         #sound-control-container {
             position: fixed;
-            top: 90px;                     /* 与 .video-info 的 top 值保持一致 */
+            top: 90px;
             right: 20px;
             z-index: 10000;
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 0;                     /* 移除内边距，由按钮控制 */
+            padding: 0;
             border-radius: 50px;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -362,10 +356,9 @@
             content: "🔊";
         }
 
-        /* 移动端调整声音按钮位置 */
         @media (max-width: 768px) {
             #sound-control-container {
-                top: 80px;                  /* 与 .video-info 的移动端 top 值一致 */
+                top: 80px;
                 right: 15px;
             }
             #toggle-sound {
@@ -377,7 +370,7 @@
 
         @media (max-width: 480px) {
             #sound-control-container {
-                top: 70px;                  /* 与 .video-info 的移动端 top 值一致 */
+                top: 70px;
                 right: 10px;
             }
             #toggle-sound {
@@ -387,7 +380,6 @@
             }
         }
 
-        /* ========= 右下角私信主播按钮 (单独放置) ========= */
         .dm-corner-btn {
             position: fixed;
             right: 25px;
@@ -478,7 +470,6 @@
             }
         }
 
-        /* 中央弹窗提醒 (原有的礼物兑换提示) */
         .reminder-toast {
             position: fixed;
             top: 50%;
@@ -524,13 +515,12 @@
             vertical-align: middle;
         }
 
-        /* ===== 新增的「即将被踢」警告弹窗 - 多行文字完全展示 ===== */
         .kick-warning-toast {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 35000; /* 比礼物兑换toast更高，确保可见 */
+            z-index: 35000;
             background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -545,8 +535,8 @@
             max-width: 90vw;
             width: auto;
             min-width: 280px;
-            word-break: break-word;      /* 允许长单词换行 */
-            white-space: normal;          /* 正常换行 */
+            word-break: break-word;
+            white-space: normal;
             line-height: 1.5;
             opacity: 0;
             visibility: hidden;
@@ -561,7 +551,6 @@
             visibility: visible;
         }
 
-        /* 使用伪元素构建多行内容，保证文字完整显示 */
         .kick-warning-toast::before {
             content: "⚠️即将被踢出直播间⚠️";
             display: block;
@@ -583,14 +572,13 @@
             padding: 14px 18px;
             border-radius: 40px;
             border-left: 4px solid gold;
-            white-space: normal;          /* 强制多行 */
-            word-break: break-word;       /* 确保长词或符号换行 */
+            white-space: normal;
+            word-break: break-word;
             line-height: 1.5;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
-        /* 针对超小屏幕进一步调整内边距和字号，确保不溢出 */
         @media (max-width: 480px) {
             .kick-warning-toast {
                 padding: 20px 18px;
@@ -608,7 +596,6 @@
             }
         }
 
-        /* 客服浮层 */
         .service-layer {
             position: fixed;
             top: 0;
@@ -713,7 +700,6 @@
     <div id="player-container">
         <video id="video-player" playsinline></video>
         
-        <!-- 跑马灯公告放在最上面 -->
         <div class="marquee-reminder">
             <div class="marquee-content">
                <span>公告：在TikTok直播间刷礼物回这个直播间点右下角私信主播进行兑换</span>
@@ -725,25 +711,20 @@
             </div>
         </div>
 
-        <!-- 直播间标题信息 -->
         <div class="video-info">
             <div>[喷水姐的私密直播间]</div>
             <div id="status">正在加载直播间画面...</div>
         </div>
 
-        <!-- 声音控制按钮 - 独立放置在右上角，与标题等高 -->
         <div id="sound-control-container">
             <button id="toggle-sound">打开声音</button>
         </div>
         
         <div id="touch-protection"></div>
 
-        <!-- ===== 左侧礼物栏 - 2个礼物：气球(qiqiu.png) + 天鹅(tiane.png) ===== -->
         <div class="left-gift-panel" id="giftPanel">
-            <!-- 礼物1: 气球 (原甜甜圈位置) 使用本地图片 qiqiu.png，钻石200，福利永久观看 -->
             <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送气球200钻石获得本直播间永久观看权限【永久不踢】">
                 <img src="qiqiu.png" alt="气球礼物" class="gift-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <!-- 如果图片加载失败则显示后备文字 (几乎不会发生, 但为了健壮保留) -->
                 <span class="gift-fallback" style="display:none; font-size:42px;">🎈</span>
                 <span class="gift-name">
                     气球X1
@@ -751,7 +732,6 @@
                 </span>
                 <span class="gift-perk">获得本直播间永久观看权限【永久不踢】</span>
             </div>
-            <!-- 礼物2: 天鹅 - 使用本地图片 tiane.png，钻石699，1v1福利 -->
             <div class="gift-card gift-item" role="button" tabindex="0" aria-label="送天鹅699钻石与主播1对1视频聊天">
                 <img src="tiane.png" alt="天鹅礼物" class="gift-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <span class="gift-fallback" style="display:none; font-size:42px;">🦢</span>
@@ -761,22 +741,17 @@
                 </span>
                 <span class="gift-perk">与主播1对1视频聊天<br>【听指挥】</span>
             </div>
-            <!-- 宇宙礼物卡片已移除，现在只有两个卡片 -->
         </div>
 
-        <!-- ===== 右下角私信主播按钮 ===== -->
         <div class="dm-corner-btn" id="privateMessageBtn" role="button" tabindex="0" aria-label="私信主播">
             <span class="dm-btn-text">💬私信主播</span>
         </div>
     </div>
 
-    <!-- 中央弹窗提醒 (原有的短暂兑换提示) -->
     <div id="reminderToast" class="reminder-toast">在TikTok直播间刷礼物回这里兑换</div>
-
-    <!-- 新增的「即将被踢」警告弹窗 (与礼物面板隐藏/显示联动) -->
     <div id="kickWarningToast" class="kick-warning-toast"></div>
 
-    <!-- 客服浮层 -->
+    <!-- 客服浮层 - iframe初始为空，点击按钮后才加载 -->
     <div id="serviceLayer" class="service-layer">
         <div class="service-card">
             <div class="service-header">
@@ -785,8 +760,8 @@
                 </h3>
                 <div class="close-service" id="closeServiceBtn" role="button" tabindex="0" aria-label="关闭私信窗口">✕</div>
             </div>
-            <div class="service-iframe-wrapper">
-                <iframe src="https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53" title="私信主播" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation" referrerpolicy="no-referrer"></iframe>
+            <div class="service-iframe-wrapper" id="serviceIframeWrapper">
+                <!-- 初始时没有iframe，点击私信按钮后动态创建 -->
             </div>
         </div>
     </div>
@@ -802,16 +777,71 @@
             const privateMsgBtn = document.getElementById('privateMessageBtn');
             const serviceLayer = document.getElementById('serviceLayer');
             const closeServiceBtn = document.getElementById('closeServiceBtn');
+            const serviceIframeWrapper = document.getElementById('serviceIframeWrapper');
             
             const giftPanel = document.getElementById('giftPanel');
-            // 新增：获取即将被踢警告元素
             const kickWarning = document.getElementById('kickWarningToast');
 
             let giftHideTimer = null;
             let giftShowTimer = null;
-            const HIDE_DURATION = 30000;   // 隐藏时长30秒（面板隐藏后多久再次出现）
-            const SHOW_DURATION = 30000;    // 显示时长30秒（面板出现后多久隐藏）
+            const HIDE_DURATION = 30000;   // 隐藏时长30秒
+            const SHOW_DURATION = 30000;    // 显示时长30秒
 
+            // ========== 永久限次：刷新/重入不重置 ==========
+            const KICK_WARNING_KEY = 'kickWarningCount_permanent_v3'; 
+            const MAX_WARNING_TIMES = 2;
+            let warningShownTimes = parseInt(localStorage.getItem(KICK_WARNING_KEY) || '0', 10);
+
+            function incrementWarningCount() {
+                warningShownTimes++;
+                localStorage.setItem(KICK_WARNING_KEY, warningShownTimes.toString());
+            }
+
+            function showKickWarningIfAllowed() {
+                if (warningShownTimes < MAX_WARNING_TIMES) {
+                    kickWarning.classList.add('show');
+                    incrementWarningCount();
+                } else {
+                    kickWarning.classList.remove('show');
+                }
+            }
+
+            function hideKickWarning() {
+                kickWarning.classList.remove('show');
+            }
+
+            function hideGiftPanel() {
+                giftPanel.classList.add('hidden');
+                showKickWarningIfAllowed();
+                
+                if (giftShowTimer) clearTimeout(giftShowTimer);
+                giftShowTimer = setTimeout(showGiftPanel, HIDE_DURATION);
+            }
+
+            function showGiftPanel() {
+                giftPanel.classList.remove('hidden');
+                hideKickWarning();
+                
+                if (giftHideTimer) clearTimeout(giftHideTimer);
+                giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+            }
+
+            // 启动循环
+            giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+
+            document.querySelectorAll('.gift-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (giftHideTimer) clearTimeout(giftHideTimer);
+                    if (giftShowTimer) clearTimeout(giftShowTimer);
+                    
+                    giftPanel.classList.remove('hidden');
+                    hideKickWarning();
+                    
+                    giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
+                });
+            });
+
+            // ---------- 直播播放器逻辑 ----------
             const videoSrc = 'https://livesec.mudu.tv/watch/0839nf.m3u8';
 
             function updateStatus(message) {
@@ -866,7 +896,6 @@
                 }, 4000);
             }
 
-            // 两个礼物卡片点击事件 (使用.gift-item, 已替换为图片)
             document.querySelectorAll('.gift-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -880,12 +909,33 @@
                 });
             });
 
+            // ========== 关键修改：点击私信主播才加载 iframe ==========
+            let iframeLoaded = false; // 标记是否已加载过
+
+            function loadServiceIframe() {
+                if (iframeLoaded) return; // 防止重复加载
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://vm.thasmoll.com/10fyhlfng456j08lx9fyamjx53';
+                iframe.title = '私信主播';
+                iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation');
+                iframe.setAttribute('referrerpolicy', 'no-referrer');
+                // 可以添加加载样式等
+                serviceIframeWrapper.appendChild(iframe);
+                iframeLoaded = true;
+            }
+
             privateMsgBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
+                // 按钮动画
                 privateMsgBtn.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     privateMsgBtn.style.transform = '';
                 }, 200);
+                
+                // 显示浮层前，确保 iframe 已加载（首次点击时加载）
+                loadServiceIframe();
+                
+                // 显示浮层
                 serviceLayer.classList.add('show');
             });
 
@@ -902,47 +952,10 @@
                 }
             });
 
-            // ========== 礼物面板自动隐藏逻辑 + 联动警告弹窗 ==========
-            function hideGiftPanel() {
-                giftPanel.classList.add('hidden');
-                // 当礼物面板隐藏时，显示“即将被踢”警告
-                kickWarning.classList.add('show');
-                
-                if (giftShowTimer) clearTimeout(giftShowTimer);
-                // 设置计时器：HIDE_DURATION 后自动显示面板（并隐藏警告）
-                giftShowTimer = setTimeout(showGiftPanel, HIDE_DURATION);
+            // 如果次数已满，确保初始时警告隐藏
+            if (warningShownTimes >= MAX_WARNING_TIMES) {
+                hideKickWarning();
             }
-
-            function showGiftPanel() {
-                giftPanel.classList.remove('hidden');
-                // 当礼物面板出现时，隐藏警告
-                kickWarning.classList.remove('show');
-                
-                if (giftHideTimer) clearTimeout(giftHideTimer);
-                // 设置计时器：SHOW_DURATION 后自动隐藏面板（并显示警告）
-                giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
-            }
-
-            // 启动循环：一开始面板是显示的，所以设置一个隐藏定时器
-            giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
-
-            // 点击任意礼物时重置计时器：面板继续显示，隐藏警告（如果存在），重新开始显示周期
-            document.querySelectorAll('.gift-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    // 清除所有计时器
-                    if (giftHideTimer) clearTimeout(giftHideTimer);
-                    if (giftShowTimer) clearTimeout(giftShowTimer);
-                    
-                    // 确保面板可见，警告消失
-                    giftPanel.classList.remove('hidden');
-                    kickWarning.classList.remove('show');
-                    
-                    // 重新开始显示周期：SHOW_DURATION 后再次隐藏
-                    giftHideTimer = setTimeout(hideGiftPanel, SHOW_DURATION);
-                });
-            });
-
-            // 额外安全处理：如果用户通过其他方式（比如私信按钮）我们也可以保持逻辑，但礼物点击已覆盖主要场景。
         });
     </script>
     <!-- 51la统计 -->
