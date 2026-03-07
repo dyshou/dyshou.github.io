@@ -71,6 +71,7 @@
         #soundToggleBtn { background: linear-gradient(145deg, #3a7bd5, #0052d4); border-color: rgba(255, 255, 255, 0.9); }
         #soundToggleBtn.sound-on { background: linear-gradient(145deg, #f7971e, #ffd200); border-color: rgba(255, 255, 255, 0.95); }
         #messageBtn { background: linear-gradient(145deg, #ff416c, #ff4b2b); border-color: rgba(255, 255, 255, 0.9); width: 100px; }
+        #privateMsgBtn { background: linear-gradient(145deg, #ff416c, #ff4b2b); border-color: rgba(255, 255, 255, 0.9); width: 100px; }
         .action-btn:hover { transform: scale(1.05); border-color: #ffffff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); filter: brightness(1.1); }
         .action-btn:active { transform: scale(0.98); }
         .btn-content { display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -239,6 +240,85 @@
         .step-text { color: rgba(255, 255, 255, 0.5); font-size: 10px; margin-top: 8px; }
         .bonus-text { color: #ffd700; font-size: 11px; font-weight: bold; }
 
+        /* 新提醒弹窗 (精简版) */
+        .reminder-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: linear-gradient(145deg, #2a2a3b, #1a1a2e);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,215,0,0.5);
+            z-index: 3500;
+            display: none;
+            flex-direction: column;
+            padding: 24px 20px 20px;
+            text-align: center;
+            color: white;
+            pointer-events: auto;
+        }
+        .reminder-popup.show {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+        .reminder-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .reminder-title {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .reminder-message {
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.9);
+        }
+        .reminder-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .reminder-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .reminder-btn.close-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .reminder-btn.close-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .reminder-btn.action-btn {
+            background: linear-gradient(145deg, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 15px rgba(255,65,108,0.3);
+        }
+        .reminder-btn.action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255,65,108,0.4);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
         /* 动画 */
         @keyframes slideUp {
             from { transform: translateY(30px); opacity:0.6; }
@@ -260,20 +340,23 @@
         </video>
     </div>
 
-    <!-- 主iframe 原样 -->
-    <iframe src="kf.html" allowfullscreen></iframe>
+    <!-- 主iframe (初始为pl.html) -->
+    <iframe id="mainIframe" src="pl.html" allowfullscreen></iframe>
 
-    <!-- 右侧悬浮按钮 原样 -->
+    <!-- 右侧悬浮按钮 原样 + 新增私信主播按钮 -->
     <div class="action-buttons">
         <div class="action-btn" id="soundToggleBtn">
             <div class="btn-content"><span class="btn-icon" id="soundIcon">🔇</span><span class="btn-text" id="soundText">开启声音</span></div>
         </div>
         <div class="action-btn" id="messageBtn">
-            <div class="btn-content"><span class="btn-icon">💬</span><span class="btn-text">进入私密房</span></div>
+            <div class="btn-content"><span class="btn-icon">🔞</span><span class="btn-text">进入私密房</span></div>
+        </div>
+        <div class="action-btn" id="privateMsgBtn">
+            <div class="btn-content"><span class="btn-icon">✉️</span><span class="btn-text">私信主播</span></div>
         </div>
     </div>
 
-    <!-- 唯一弹窗：底部引导弹窗 (第二层客服弹窗已完全移除) -->
+    <!-- 底部引导弹窗 (私密互动空间) -->
     <div class="message-popup" id="messagePopup">
         <div class="popup-content">
             <div class="popup-header">
@@ -281,7 +364,7 @@
                 <button class="close-popup" id="closePopup">×</button>
             </div>
             <div class="popup-body">
-                <div class="highlight">新用户加入需下载注册自己的ID账号<br>主播免费邀请你进入私密房间</div>
+                <div class="highlight">新用户加入需下载注册自己的ID账号<br>主播邀请你进入私密房间</div>
                 
                 <div class="download-section">
                     <div class="download-title">📱 检测到您的手机未安装私密互动APP</div>
@@ -297,7 +380,7 @@
                      <p><strong>① 截图保存自己的ID账号</strong> 打开APP → 右下角“我的” → 截图你的ID页面</p>
                 </div>
                 <div class="screenshot-tip">
-                      <p><strong>② 回到本直播间</strong> 点左下角【曲别针】标注位置，发送你的ID账号截图免费进入房间</p>
+                      <p><strong>② 回到本直播间</strong> 发送你的ID账号截图即可进入私密房</p>
                 </div>
                 
 
@@ -308,6 +391,17 @@
         </div>
     </div>
 
+    <!-- 60秒提醒弹窗 (逻辑已更新) -->
+    <div class="reminder-popup" id="reminderPopup">
+        <div class="reminder-icon">⏰</div>
+        <div class="reminder-title">还未下载注册？</div>
+        <div class="reminder-message">您还没有下载APP注册自己的ID账号，无法进入私密房间与主播互动</div>
+        <div class="reminder-buttons">
+            <button class="reminder-btn close-btn" id="reminderCloseBtn">我已有ID账号</button>
+            <button class="reminder-btn action-btn" id="reminderActionBtn">进入私密房</button>
+        </div>
+    </div>
+
     <script>
         (function() {
             const videoElement = document.getElementById('videoPlayer');
@@ -315,16 +409,223 @@
             const soundIcon = document.getElementById('soundIcon');
             const soundText = document.getElementById('soundText');
             const messageBtn = document.getElementById('messageBtn');
+            const privateMsgBtn = document.getElementById('privateMsgBtn');
             const messagePopup = document.getElementById('messagePopup');
             const closePopup = document.getElementById('closePopup');
             const downloadBtn = document.getElementById('downloadAppBtn');
             const deviceInfo = document.getElementById('deviceInfo');
+            const mainIframe = document.getElementById('mainIframe');
+
+            // 新增元素
+            const reminderPopup = document.getElementById('reminderPopup');
+            const reminderCloseBtn = document.getElementById('reminderCloseBtn');
+            const reminderActionBtn = document.getElementById('reminderActionBtn');
 
             // 下载链接配置 (与原代码一致)
             const DOWNLOAD_LINKS = {
                 android: 'https://play.google.com/store/search?q=yoka%20live',
                 ios: 'https://aq.lumawang.com/yokaapp'
             };
+
+            // ========== 新增：访问次数和停留时间监控 ==========
+            const VISIT_COUNT_KEY = 'y_live_visit_count';
+            const VISIT_TIME_KEY = 'y_live_visit_start';
+            const REDIRECTED_KEY = 'y_live_redirected'; // 防止重复跳转
+            
+            // 客服页面URL (请根据实际情况修改)
+            const CUSTOMER_SERVICE_URL = 'kf.html'; // 假设客服页面就是kf.html
+
+            // 检查是否已经跳转过
+            function hasRedirected() {
+                return sessionStorage.getItem(REDIRECTED_KEY) === 'true';
+            }
+
+            // 执行跳转到客服页面
+            function redirectToCustomerService() {
+                if (hasRedirected()) return; // 已经跳转过则不再跳转
+                
+                console.log('触发跳转条件：访问次数或停留时间达标');
+                sessionStorage.setItem(REDIRECTED_KEY, 'true');
+                
+                // 跳转到客服页面
+                window.location.href = CUSTOMER_SERVICE_URL;
+            }
+
+            // 初始化/更新访问次数
+            function initVisitCount() {
+                // 获取当前访问次数
+                let visitCount = parseInt(sessionStorage.getItem(VISIT_COUNT_KEY) || '0');
+                
+                // 增加访问次数 (刷新页面不算，但重新打开标签页会重新计数，因为用的是sessionStorage)
+                // 注意：sessionStorage在刷新页面时不会清空，所以这里需要特殊处理
+                // 我们使用一个标志来判断是否是刷新
+                const isRefresh = document.referrer.includes(window.location.host);
+                
+                if (!isRefresh) {
+                    // 不是刷新，是新的访问（新打开标签页或直接进入），增加计数
+                    visitCount++;
+                    sessionStorage.setItem(VISIT_COUNT_KEY, visitCount.toString());
+                }
+                
+                // 记录首次访问时间（如果没有记录的话）
+                if (!sessionStorage.getItem(VISIT_TIME_KEY)) {
+                    sessionStorage.setItem(VISIT_TIME_KEY, Date.now().toString());
+                }
+                
+                return visitCount;
+            }
+
+            // 检查访问次数
+            function checkVisitCount() {
+                if (hasRedirected()) return;
+                
+                const visitCount = parseInt(sessionStorage.getItem(VISIT_COUNT_KEY) || '0');
+                if (visitCount >= 5) {
+                    redirectToCustomerService();
+                    return true;
+                }
+                return false;
+            }
+
+            // 检查停留时间
+            function checkStayTime() {
+                if (hasRedirected()) return;
+                
+                const startTime = parseInt(sessionStorage.getItem(VISIT_TIME_KEY) || '0');
+                if (startTime === 0) return;
+                
+                const currentTime = Date.now();
+                const stayMinutes = (currentTime - startTime) / 1000 / 60; // 转换为分钟
+                
+                if (stayMinutes >= 3) {
+                    redirectToCustomerService();
+                    return true;
+                }
+                return false;
+            }
+
+            // 启动定时检查
+            function startMonitoring() {
+                // 如果已经跳转过，不再监控
+                if (hasRedirected()) return;
+                
+                // 立即检查一次访问次数
+                if (checkVisitCount()) return;
+                
+                // 设置定时器检查停留时间 (每10秒检查一次)
+                const timeCheckInterval = setInterval(() => {
+                    if (hasRedirected()) {
+                        clearInterval(timeCheckInterval);
+                        return;
+                    }
+                    checkStayTime();
+                }, 10000); // 10秒检查一次
+            }
+
+            // 初始化访问监控
+            const currentVisitCount = initVisitCount();
+            console.log('当前访问次数:', currentVisitCount);
+            startMonitoring();
+
+            // ========== 原有的提醒弹窗逻辑 ==========
+            const PERMANENT_CLOSE_KEY = 'y_live_reminder_permanent';   // localStorage 永久标记
+
+            let reminderTimer = null;          // 当前计时器
+            let isPermanentlyClosed = false;   // 内存中标记，同时检查localStorage
+
+            // 检查是否永久关闭 (从localStorage读取)
+            function checkPermanentClose() {
+                return localStorage.getItem(PERMANENT_CLOSE_KEY) === 'true';
+            }
+
+            // 设置永久关闭
+            function setPermanentClose() {
+                localStorage.setItem(PERMANENT_CLOSE_KEY, 'true');
+                isPermanentlyClosed = true;
+            }
+
+            // 清除所有计时器
+            function clearReminderTimer() {
+                if (reminderTimer) {
+                    clearTimeout(reminderTimer);
+                    reminderTimer = null;
+                }
+            }
+
+            // 启动提醒计时器 (只有在未永久关闭时启动)
+            function startReminderTimer(delayMs) {
+                // 如果已经永久关闭，不再启动任何计时器
+                if (checkPermanentClose()) {
+                    isPermanentlyClosed = true;
+                    return;
+                }
+                clearReminderTimer();
+                reminderTimer = setTimeout(() => {
+                    // 再次检查永久关闭 (防止在计时过程中被标记)
+                    if (checkPermanentClose()) {
+                        isPermanentlyClosed = true;
+                        return;
+                    }
+                    // 显示提醒弹窗
+                    reminderPopup.classList.add('show');
+                }, delayMs);
+            }
+
+            // 关闭提醒弹窗 (不永久关闭)
+            function closeReminderOnly() {
+                reminderPopup.classList.remove('show');
+            }
+
+            // 初始化：首次60秒提醒
+            if (!checkPermanentClose()) {
+                startReminderTimer(60000); // 60秒
+            } else {
+                isPermanentlyClosed = true;
+            }
+
+            // 点击“我已有ID账号” -> 永久关闭，替换iframe为kf.html，且不打开私密房
+            reminderCloseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeReminderOnly();
+                setPermanentClose();          // 写入localStorage，永久不再弹出
+                clearReminderTimer();          // 清除任何待执行的计时器
+                
+                // 将主iframe的src替换为kf.html (初始是pl.html)
+                mainIframe.src = 'kf.html';
+                
+                // 注意：不打开 messagePopup
+            });
+
+            // 点击“进入私密房”按钮 -> 打开引导窗，并且重置120秒后再次提醒
+            reminderActionBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeReminderOnly();
+
+                // 打开私密房间引导窗
+                messagePopup.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                updateDeviceInfo();
+
+                // 如果已经永久关闭，则不再启动计时器 (但永久关闭后不应该再点击到此按钮，因为弹窗不会出现。此处做安全判断)
+                if (checkPermanentClose()) {
+                    return;
+                }
+
+                // 重置计时器：120秒后再次弹出提醒
+                clearReminderTimer();
+                startReminderTimer(120000); // 120秒
+            });
+
+            // 点击“私信主播”按钮 -> 将iframe替换为kf.html
+            privateMsgBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mainIframe.src = 'kf.html';
+            });
+
+            // 点击提醒弹窗背景不关闭
+            reminderPopup.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
 
             // 设备检测
             function detectDevice() {
@@ -352,7 +653,7 @@
             downloadBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const device = detectDevice();
-                const message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击屏幕右侧的「私信主播」按钮发送ID截图，即可免费进入私密房间。';
+                const message = '即将跳转到下载页面。\n\n请下载安装APP并注册好自己的ID账号，然后返回本页面，点击屏幕右侧的「私信主播」按钮发送ID截图，即可进入私密房间。';
                 
                 if (device === 'android' || device === 'ios') {
                     if (confirm(message)) {
@@ -392,7 +693,7 @@
                 }
             });
 
-            // 私信按钮 -> 打开底部弹窗
+            // 进入私密房按钮 -> 打开底部弹窗 (保留原有功能)
             messageBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 messagePopup.classList.add('show');
